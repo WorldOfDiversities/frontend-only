@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SwiftPOS - Reports & Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;
+  --navy-light:#1a3260;
+  --navy-faint:#eef1f8;
+  --navy-muted:#d0d8ea;
+  --accent:#1e40af;
+  --text:#111827;
+  --text-muted:#6b7280;
+  --text-light:#9ca3af;
+  --border:#e5e7eb;
+  --surface:#ffffff;
+  --bg:#f4f6fb;
+  --success:#059669;
+  --success-bg:#d1fae5;
+  --warn:#d97706;
+  --warn-bg:#fef3c7;
+  --danger:#dc2626;
+  --danger-bg:#fee2e2;
+  --sidebar-w:228px;
+  --topbar-h:64px;
+  --radius:8px;
+  --radius-lg:14px;
+}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
+h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;z-index:200;}
+.sidebar-logo{padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.logo-mark{width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.logo-text{font-family:'Instrument Serif',serif;font-size:18px;color:#fff;}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.25);font-family:'Geist Mono',monospace;margin-left:2px;}
+.menu-toggle{display:none;margin-left:auto;width:32px;height:32px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.menu-toggle span{width:15px;height:2px;border-radius:2px;background:#fff;transition:transform 180ms ease,opacity 180ms ease;}
+.sidebar-body{flex:1;padding:1rem 0;overflow-y:auto;}
+.sidebar-body::-webkit-scrollbar{display:none;}
+.nav-group-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0.85rem 1.5rem 0.35rem;font-family:'Geist Mono',monospace;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:0.6rem 1.5rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s;font-size:13px;border-left:2px solid transparent;}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+.nav-item.active{color:#fff;background:rgba(255,255,255,0.09);border-left-color:#fff;}
+.nav-item .ni{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;font-family:'Geist Mono',monospace;}
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:12px;font-weight:500;color:#fff;}
+.user-role{font-size:10px;color:rgba(255,255,255,0.35);}
+.logout{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;}
+.logout:hover{color:rgba(255,255,255,0.8);}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;z-index:100;}
+.topbar-left h2{font-size:19px;}
+.topbar-left p{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.5rem 1rem;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;border:1px solid transparent;transition:all 0.15s;}
+.btn-outline{background:var(--surface);color:var(--text);border-color:var(--border);}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:var(--navy-light);}
+
+.range-tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:3px;}
+.range-tab{padding:0.3rem 0.85rem;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text-muted);transition:all 0.15s;border:1px solid transparent;}
+.range-tab.active{background:var(--navy);color:#fff;}
+.range-tab:not(.active):hover{color:var(--text);}
+
+.main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);}
+.inner{padding:2rem;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.75rem;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;position:relative;overflow:hidden;animation:fadeUp 0.35s ease both;transition:box-shadow 0.15s;}
+.kpi:hover{box-shadow:0 4px 20px rgba(15,31,61,0.07);}
+.kpi:nth-child(1){animation-delay:.05s;}.kpi:nth-child(2){animation-delay:.1s;}.kpi:nth-child(3){animation-delay:.15s;}.kpi:nth-child(4){animation-delay:.2s;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.kpi-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;font-weight:500;margin-bottom:0.6rem;}
+.kpi-value{font-family:'Instrument Serif',serif;font-size:30px;color:var(--text);line-height:1;margin-bottom:6px;}
+.kpi-delta{font-size:12px;display:flex;align-items:center;gap:4px;}
+.delta-up{color:var(--success);} .delta-dn{color:var(--danger);} .delta-neu{color:var(--text-muted);} .kpi-sparkline{position:absolute;bottom:0;left:0;right:0;height:40px;opacity:0.12;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;animation:fadeUp 0.35s ease 0.25s both;}
+.card-header{padding:1.1rem 1.35rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.card-title{font-size:15px;font-weight:500;} .card-sub{font-size:11px;color:var(--text-muted);margin-top:2px;} .card-body{padding:1.35rem;}
+.card-action{font-size:12px;color:var(--accent);cursor:pointer;border:none;background:none;font-family:'Geist',sans-serif;padding:0;flex-shrink:0;}
+.card-action:hover{text-decoration:underline;}
+
+.row-2{display:grid;grid-template-columns:1.7fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+.row-2b{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
+.mb{margin-bottom:1.25rem;}
+
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:120px;padding-bottom:4px;}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;}
+.bar-col .bar{width:100%;border-radius:5px 5px 0 0;background:var(--navy);transition:opacity 0.2s,height 0.4s;cursor:pointer;position:relative;}
+.bar-col .bar.dim{opacity:0.15;} .bar-col .bar.hi{opacity:1;} .bar-col .bar.mid{opacity:0.55;} .bar-col .bar:hover{opacity:1!important;}
+.bar-tooltip{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:10px;padding:3px 6px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.15s;font-family:'Geist Mono',monospace;z-index:10;}
+.bar-col .bar:hover .bar-tooltip{opacity:1;}
+.bar-lbl{font-size:9px;color:var(--text-light);font-family:'Geist Mono',monospace;text-align:center;}
+.chart-summary{display:flex;gap:1.5rem;padding-top:1rem;border-top:1px solid var(--border);margin-top:1rem;}
+.cs-item .cs-val{font-family:'Geist Mono',monospace;font-size:13px;font-weight:500;} .cs-item .cs-lbl{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+.h-bar-item{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.h-bar-item:last-child{margin-bottom:0;}
+.h-bar-label{font-size:12px;min-width:80px;color:var(--text-muted);}
+.h-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.h-bar-fill{height:100%;border-radius:4px;background:var(--navy);transition:width 0.5s ease;}
+.h-bar-val{font-size:12px;font-family:'Geist Mono',monospace;font-weight:500;min-width:36px;text-align:right;}
+
+.donut-wrap{position:relative;width:110px;height:110px;flex-shrink:0;} .donut-wrap svg{width:100%;height:100%;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;} .donut-pct{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text);} .donut-lbl{font-size:10px;color:var(--text-muted);margin-top:1px;}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1;} .dl-item{display:flex;align-items:center;gap:8px;} .dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;} .dl-name{flex:1;font-size:12px;color:var(--text-muted);} .dl-pct{font-size:12px;font-family:'Geist Mono',monospace;font-weight:500;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:0.6rem 1rem;font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap;}
+tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#fafbfd;}
+.perf-bar{display:flex;align-items:center;gap:6px;} .perf-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;min-width:60px;} .perf-fill{height:100%;border-radius:3px;background:var(--navy);} .perf-pct{font-size:10px;font-family:'Geist Mono',monospace;color:var(--text-muted);min-width:30px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;} .badge-green{background:var(--success-bg);color:#065f46;} .badge-blue{background:var(--navy-faint);color:var(--navy);} .badge-gray{background:#f3f4f6;color:#374151;} .badge-yellow{background:var(--warn-bg);color:#92400e;}
+.prod-row{display:flex;align-items:center;gap:10px;padding:0.7rem 0;border-bottom:1px solid var(--border);} .prod-row:last-child{border-bottom:none;} .prod-rank{font-size:12px;font-family:'Geist Mono',monospace;color:var(--text-light);width:18px;text-align:center;flex-shrink:0;} .prod-emoji-sm{font-size:18px;flex-shrink:0;width:26px;text-align:center;color:var(--warn);} .prod-thumb-wrap{width:28px;height:28px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#eef2ff;border:1px solid #e5e7eb;} .prod-thumb{width:100%;height:100%;object-fit:cover;display:block;} .prod-thumb-fallback{width:28px;height:28px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#dbe6ff;color:#1e40af;font-size:11px;font-weight:600;border:1px solid #c7d2fe;} .prod-info{flex:1;min-width:0;} .prod-name-sm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .prod-cat-sm{font-size:11px;color:var(--text-muted);} .prod-units{font-size:12px;color:var(--text-muted);font-family:'Geist Mono',monospace;text-align:right;white-space:nowrap;} .prod-rev{font-size:13px;font-weight:500;font-family:'Geist Mono',monospace;min-width:80px;text-align:right;}
+.trend-up{color:var(--success);font-size:11px;} .trend-dn{color:var(--danger);font-size:11px;}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:0.7rem 1.1rem;border-radius:var(--radius);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.25s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;} .toast.success{background:var(--success);} .toast.error{background:var(--danger);}
+.report-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.5rem;}
+.report-tab{flex:1;padding:0.6rem 1rem;text-align:center;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-muted);background:var(--surface);border-right:1px solid var(--border);transition:all 0.15s;}
+.report-tab:last-child{border-right:none;} .report-tab.active{background:var(--navy);color:#fff;} .report-tab:not(.active):hover{background:var(--bg);} .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+
+@media (max-width: 1200px){.kpi-grid{grid-template-columns:repeat(2,1fr);} .row-2,.row-2b{grid-template-columns:1fr;} .row-3{grid-template-columns:1fr;}}
+@media (max-width: 980px){
+  .sidebar{position:static;width:100%;}
+  .menu-toggle{display:inline-flex;}
+  .sidebar-body{display:block;max-height:0;opacity:0;overflow:hidden;padding:0 0.75rem;transition:max-height 220ms ease,opacity 180ms ease,padding 180ms ease;}
+  .sidebar.mobile-open .sidebar-body{max-height:520px;opacity:1;padding:0.6rem 0.75rem 0.75rem;}
+  .nav-group-label{display:block;padding:0.65rem 0.2rem 0.3rem;}
+  .nav-item{border-left:0;border-radius:var(--radius);padding:0.5rem 0.75rem;margin-bottom:4px;}
+  .nav-item.active{border-left:0;}
+  .sidebar-footer{display:block;max-height:0;opacity:0;overflow:hidden;padding:0 0.75rem;border-top:0;border-bottom:1px solid rgba(255,255,255,0.08);transition:max-height 220ms ease,opacity 180ms ease,padding 180ms ease;}
+  .sidebar.mobile-open .sidebar-footer{max-height:92px;opacity:1;padding:0.6rem 0.75rem;}
+  .sidebar-footer .user-row{justify-content:flex-end;}
+  .sidebar.mobile-open .menu-toggle span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .sidebar.mobile-open .menu-toggle span:nth-child(2){opacity:0;}
+  .sidebar.mobile-open .menu-toggle span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+  .topbar,.main{position:static;left:0;margin-left:0;}
+  .topbar{height:auto;padding:0.9rem 1rem;gap:10px;flex-wrap:wrap;}
+  .topbar-right{width:100%;flex-wrap:wrap;}
+  .main{padding-top:0;}
+  .inner{padding:1rem;}
+}
+
+@media (max-width: 640px){
+  .kpi-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">⬡</div>
+    <div class="logo-text">SwiftPOS</div>
+    <span class="logo-ver">v2.0</span>
+    <button class="menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-body">
+    <div class="nav-group-label">Main</div>
+    <div class="nav-item" data-route="dashboard.html"><span class="ni">▦</span> Dashboard</div>
+    <div class="nav-item" data-route="pos.html"><span class="ni">⊞</span> POS / Cashier</div>
+    <div class="nav-group-label">Management</div>
+    <div class="nav-item" data-route="products.html"><span class="ni">◫</span> Products</div>
+    <div class="nav-item" data-route="inventory.html"><span class="ni">⊟</span> Inventory <span class="nav-badge" id="inventory-nav-badge">0</span></div>
+    <div class="nav-item" data-route="customers.html"><span class="ni">◯</span> Customers</div>
+    <div class="nav-group-label">Analytics</div>
+    <div class="nav-item active" data-route="reports.html"><span class="ni">▤</span> Reports</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="user-avatar">US</div>
+      <div class="user-info"><div class="user-name" id="user-name">User</div><div class="user-role" id="user-role">Role</div></div>
+      <button class="logout" id="logout-btn">↩</button>
+    </div>
+  </div>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <h2>Reports & Analytics</h2>
+    <p id="report-period-label">Monthly overview</p>
+  </div>
+  <div class="topbar-right">
+    <div class="range-tabs">
+      <div class="range-tab" onclick="setPeriod(this,'day')">Today</div>
+      <div class="range-tab" onclick="setPeriod(this,'week')">This Week</div>
+      <div class="range-tab active" onclick="setPeriod(this,'month')">This Month</div>
+      <div class="range-tab" onclick="setPeriod(this,'year')">This Year</div>
+    </div>
+    <button class="btn btn-outline" id="export-pdf-btn">↓ PDF</button>
+    <button class="btn btn-navy" id="export-btn">↓ Export CSV</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="inner">
+    <div class="report-tabs">
+      <div class="report-tab active" onclick="setReportType(this,'sales')">Sales Report</div>
+      <div class="report-tab" onclick="setReportType(this,'products')">Product Performance</div>
+      <div class="report-tab" onclick="setReportType(this,'cashiers')">Cashier Report</div>
+      <div class="report-tab" onclick="setReportType(this,'inventory')">Inventory Report</div>
+    </div>
+
+    <div id="tab-sales">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-label">Revenue</div><div class="kpi-value" id="k-revenue">GH₵ 0.00</div><div class="kpi-delta delta-neu" id="k-revenue-delta">-</div></div>
+        <div class="kpi"><div class="kpi-label">Transactions</div><div class="kpi-value" id="k-txns">0</div><div class="kpi-delta delta-neu" id="k-txns-delta">-</div></div>
+        <div class="kpi"><div class="kpi-label">Avg. Basket</div><div class="kpi-value" id="k-basket">GH₵ 0.00</div><div class="kpi-delta delta-neu">Based on selected period</div></div>
+        <div class="kpi"><div class="kpi-label">Gross Profit (est.)</div><div class="kpi-value" id="k-profit">GH₵ 0.00</div><div class="kpi-delta delta-neu">Estimated at 35%</div></div>
+      </div>
+
+      <div class="row-2 mb">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Sales Trend</div><div class="card-sub" id="sales-chart-sub">Daily revenue</div></div></div>
+          <div class="card-body"><div class="bar-chart" id="daily-chart"></div><div class="chart-summary" id="daily-summary"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Payment Methods</div><div class="card-sub">Transaction breakdown</div></div></div>
+          <div class="card-body" id="payment-split"></div>
+        </div>
+      </div>
+
+      <div class="row-3">
+        <div class="card"><div class="card-header"><div><div class="card-title">Sales by Category</div><div class="card-sub">Revenue share</div></div></div><div class="card-body" id="category-breakdown"></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Hourly Traffic</div><div class="card-sub">From completed sales</div></div></div><div class="card-body"><div class="bar-chart" style="height:100px;" id="hourly-chart"></div></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Day of Week</div><div class="card-sub">Revenue pattern</div></div></div><div class="card-body"><div id="dow-chart"></div></div></div>
+      </div>
+    </div>
+
+    <div id="tab-products" style="display:none;">
+      <div class="row-2b mb">
+        <div class="card"><div class="card-header"><div><div class="card-title">Top Selling Products</div><div class="card-sub">By units sold</div></div></div><div class="card-body" style="padding:0 1.35rem;"><div id="top-products"></div></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Top Revenue Products</div><div class="card-sub">By revenue</div></div></div><div class="card-body" style="padding:0 1.35rem;"><div id="top-revenue-products"></div></div></div>
+      </div>
+      <div class="card mb">
+        <div class="card-header"><div><div class="card-title">Full Product Report</div><div class="card-sub">Current period</div></div></div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Product</th><th>Category</th><th>Units Sold</th><th>Revenue</th><th>Stock Left</th></tr></thead><tbody id="product-report-tbody"></tbody></table></div>
+      </div>
+    </div>
+
+    <div id="tab-cashiers" style="display:none;">
+      <div class="kpi-grid mb">
+        <div class="kpi"><div class="kpi-label">Total Cashiers</div><div class="kpi-value" id="c-total">0</div><div class="kpi-delta delta-neu">With completed sales</div></div>
+        <div class="kpi"><div class="kpi-label">Top Performer</div><div class="kpi-value" id="c-top" style="font-size:20px;">-</div><div class="kpi-delta delta-up" id="c-top-rev">GH₵ 0.00</div></div>
+        <div class="kpi"><div class="kpi-label">Avg. per Cashier</div><div class="kpi-value" id="c-avg">GH₵ 0.00</div><div class="kpi-delta delta-neu">Revenue</div></div>
+        <div class="kpi"><div class="kpi-label">Total Refunds</div><div class="kpi-value" id="c-refunds">0</div><div class="kpi-delta delta-neu">From sales status</div></div>
+      </div>
+      <div class="card mb"><div class="card-header"><div><div class="card-title">Cashier Performance</div><div class="card-sub">Current period</div></div></div><div class="tbl-wrap"><table><thead><tr><th>Cashier</th><th>Transactions</th><th>Revenue</th><th>Avg. Sale</th><th>Performance</th></tr></thead><tbody id="cashier-tbody"></tbody></table></div></div>
+      <div class="card mb"><div class="card-header"><div><div class="card-title">Revenue Comparison</div><div class="card-sub">Cashier vs cashier</div></div></div><div class="card-body"><div class="bar-chart" style="height:100px;" id="cashier-chart"></div></div></div>
+    </div>
+
+    <div id="tab-inventory" style="display:none;">
+      <div class="kpi-grid mb">
+        <div class="kpi"><div class="kpi-label">Total Products</div><div class="kpi-value" id="i-products">0</div><div class="kpi-delta delta-neu">Active products</div></div>
+        <div class="kpi"><div class="kpi-label">Total Units</div><div class="kpi-value" id="i-units">0</div><div class="kpi-delta delta-neu">In stock</div></div>
+        <div class="kpi"><div class="kpi-label">Low Stock Items</div><div class="kpi-value" id="i-low">0</div><div class="kpi-delta delta-dn">Needs attention</div></div>
+        <div class="kpi"><div class="kpi-label">Stock Value</div><div class="kpi-value" id="i-value">GH₵ 0.00</div><div class="kpi-delta delta-neu">Estimated by price</div></div>
+      </div>
+      <div class="row-2b mb">
+        <div class="card"><div class="card-header"><div><div class="card-title">Low Stock Products</div><div class="card-sub">From inventory summary</div></div></div><div class="card-body" style="padding:0 1.35rem;"><div id="fast-moving"></div></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Stock by Category</div><div class="card-sub">Current inventory</div></div></div><div class="card-body" id="inv-chart-wrap"><div class="bar-chart" style="height:90px;" id="inv-chart"></div></div></div>
+      </div>
+      <div class="card mb"><div class="card-header"><div><div class="card-title">Full Inventory Report</div><div class="card-sub">Products list</div></div></div><div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Closing Stock</th><th>Stock Value</th><th>Status</th></tr></thead><tbody id="inv-tbody"></tbody></table></div></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="app-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="reports.js"></script>
+<script>
+  (function () {
+    const sidebar = document.querySelector('.sidebar');
+    const toggle = document.getElementById('mobile-menu-toggle');
+    if (!sidebar || !toggle) {
+      return;
+    }
+
+    function closeMenu() {
+      sidebar.classList.remove('mobile-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', function (event) {
+      event.stopPropagation();
+      const open = sidebar.classList.toggle('mobile-open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+
+    document.addEventListener('click', function (event) {
+      if (window.innerWidth > 980) {
+        return;
+      }
+      if (!sidebar.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 980) {
+        closeMenu();
+      }
+    });
+  })();
+</script>
+</body>
+</html>

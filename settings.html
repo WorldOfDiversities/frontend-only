@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SwiftPOS — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;
+  --navy-light:#1a3260;
+  --navy-faint:#eef1f8;
+  --navy-muted:#d0d8ea;
+  --accent:#1e40af;
+  --text:#111827;
+  --text-muted:#6b7280;
+  --text-light:#9ca3af;
+  --border:#e5e7eb;
+  --surface:#ffffff;
+  --bg:#f4f6fb;
+  --success:#059669;
+  --success-bg:#d1fae5;
+  --warn:#d97706;
+  --warn-bg:#fef3c7;
+  --danger:#dc2626;
+  --danger-bg:#fee2e2;
+  --sidebar-w:228px;
+  --topbar-h:64px;
+  --settings-nav:220px;
+  --radius:8px;
+  --radius-lg:14px;
+}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
+h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
+
+/* ======== SIDEBAR ======== */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;z-index:200;}
+.sidebar-logo{padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.logo-mark{width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.logo-text{font-family:'Instrument Serif',serif;font-size:18px;color:#fff;}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.25);font-family:'Geist Mono',monospace;margin-left:2px;}
+.menu-toggle{display:none;margin-left:auto;width:32px;height:32px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.menu-toggle span{width:15px;height:2px;border-radius:2px;background:#fff;transition:transform 180ms ease,opacity 180ms ease;}
+.sidebar-body{flex:1;padding:1rem 0;overflow-y:auto;}
+.sidebar-body::-webkit-scrollbar{display:none;}
+.nav-group-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0.85rem 1.5rem 0.35rem;font-family:'Geist Mono',monospace;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:0.6rem 1.5rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s;font-size:13px;border-left:2px solid transparent;}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+.nav-item.active{color:#fff;background:rgba(255,255,255,0.09);border-left-color:#fff;}
+.nav-item .ni{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;font-family:'Geist Mono',monospace;}
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-avatar.has-image{background-size:cover;background-position:center;background-repeat:no-repeat;color:transparent;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:12px;font-weight:500;color:#fff;}
+.user-role{font-size:10px;color:rgba(255,255,255,0.35);}
+.logout{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;}
+.logout:hover{color:rgba(255,255,255,0.8);}
+
+/* ======== TOPBAR ======== */
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;z-index:100;}
+.topbar-left h2{font-size:19px;}
+.topbar-left p{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.5rem 1rem;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;border:1px solid transparent;transition:all 0.15s;}
+.btn-outline{background:var(--surface);color:var(--text);border-color:var(--border);}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-navy:hover{background:var(--navy-light);}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border-color:#fecaca;}
+.btn-danger:hover{background:#fecaca;}
+.btn-sm{padding:0.35rem 0.75rem;font-size:12px;}
+.btn-success{background:var(--success-bg);color:var(--success);border-color:#6ee7b7;}
+.btn-success:hover{background:#a7f3d0;}
+
+/* ======== MAIN LAYOUT ======== */
+.main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);}
+.settings-layout{display:grid;grid-template-columns:var(--settings-nav) 1fr;min-height:calc(100vh - var(--topbar-h));}
+
+/* ======== SETTINGS NAV ======== */
+.settings-nav{background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;}
+.sn-section-label{font-size:10px;color:var(--text-light);letter-spacing:0.08em;text-transform:uppercase;padding:0.75rem 1.25rem 0.3rem;font-weight:500;}
+.sn-item{display:flex;align-items:center;gap:10px;padding:0.6rem 1.25rem;cursor:pointer;color:var(--text-muted);font-size:13px;border-left:2px solid transparent;transition:all 0.15s;}
+.sn-item:hover{color:var(--text);background:var(--bg);}
+.sn-item.active{color:var(--navy);background:var(--navy-faint);border-left-color:var(--navy);font-weight:500;}
+.sn-icon{width:16px;text-align:center;font-size:13px;flex-shrink:0;}
+.sn-badge{margin-left:auto;background:var(--danger-bg);color:var(--danger);font-size:9px;padding:2px 5px;border-radius:8px;font-weight:600;}
+
+/* ======== SETTINGS CONTENT ======== */
+.settings-content{padding:2rem;overflow-y:auto;}
+.settings-section{display:none;}
+.settings-section.active{display:block;animation:fadeUp 0.25s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.section-hdr{margin-bottom:1.75rem;}
+.section-hdr h3{font-size:26px;margin-bottom:4px;}
+.section-hdr p{font-size:13px;color:var(--text-muted);}
+
+/* ======== SETTING CARDS ======== */
+.setting-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.25rem;}
+.setting-card-header{padding:1.1rem 1.35rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sch-title{font-size:14px;font-weight:500;}
+.sch-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.setting-card-body{padding:1.35rem;}
+
+/* setting row */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-row:first-child{padding-top:0;}
+.sr-left{flex:1;min-width:0;padding-right:2rem;}
+.sr-label{font-size:13px;font-weight:500;color:var(--text);}
+.sr-desc{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.5;}
+.sr-right{flex-shrink:0;}
+
+/* ======== TOGGLE SWITCH ======== */
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:11px;cursor:pointer;transition:background 0.2s;}
+.toggle input:checked + .toggle-track{background:var(--navy);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(18px);}
+
+/* ======== FORM FIELDS ======== */
+.field{margin-bottom:1.1rem;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--text-muted);margin-bottom:6px;letter-spacing:0.03em;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;padding:0.65rem 0.85rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Geist',sans-serif;color:var(--text);background:var(--surface);outline:none;transition:border-color 0.15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--navy);}
+.field textarea{resize:vertical;min-height:72px;}
+.field-hint{font-size:11px;color:var(--text-light);margin-top:4px;}
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.field-group-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+
+/* ======== STAFF TABLE ======== */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:0.6rem 1rem;font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg);}
+tbody td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:#fafbfd;}
+.staff-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.staff-cell{display:flex;align-items:center;gap:10px;}
+.role-select-inline{padding:0.3rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Geist',sans-serif;background:var(--surface);outline:none;cursor:pointer;}
+.role-select-inline:focus{border-color:var(--navy);}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:500;}
+.badge-green{background:var(--success-bg);color:#065f46;}
+.badge-gray{background:#f3f4f6;color:#374151;}
+.badge-blue{background:var(--navy-faint);color:var(--navy);}
+.badge-red{background:var(--danger-bg);color:#991b1b;}
+.icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);transition:all 0.15s;}
+.icon-btn:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-bg);}
+
+/* ======== COLOR THEME PICKER ======== */
+.theme-options{display:flex;gap:10px;flex-wrap:wrap;}
+.theme-opt{width:44px;height:44px;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:all 0.15s;position:relative;}
+.theme-opt.selected{border-color:var(--text);transform:scale(1.1);}
+.theme-opt .check{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;opacity:0;}
+.theme-opt.selected .check{opacity:1;}
+
+/* ======== RECEIPT PREVIEW ======== */
+.receipt-preview{background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius);padding:1.25rem;font-size:12px;font-family:'Geist Mono',monospace;line-height:2;max-width:280px;}
+.receipt-preview .rp-title{font-family:'Instrument Serif',serif;font-size:16px;text-align:center;margin-bottom:4px;}
+.receipt-preview .rp-divider{border-top:1px dashed var(--border);margin:6px 0;}
+.receipt-preview .rp-row{display:flex;justify-content:space-between;font-size:11px;}
+
+/* ======== LOG TABLE ======== */
+.log-item{display:flex;align-items:flex-start;gap:12px;padding:0.75rem 0;border-bottom:1px solid var(--border);}
+.log-item:last-child{border-bottom:none;}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.log-body{flex:1;}
+.log-title{font-size:13px;font-weight:500;}
+.log-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.log-time{font-size:10px;color:var(--text-light);font-family:'Geist Mono',monospace;white-space:nowrap;flex-shrink:0;}
+
+/* ======== DANGER ZONE ======== */
+.danger-zone{border:1px solid #fecaca;border-radius:var(--radius-lg);overflow:hidden;margin-bottom:1.25rem;}
+.danger-zone-header{background:var(--danger-bg);padding:1rem 1.35rem;border-bottom:1px solid #fecaca;}
+.dz-title{font-size:14px;font-weight:500;color:var(--danger);}
+.dz-sub{font-size:11px;color:var(--danger);opacity:0.7;margin-top:2px;}
+.danger-zone-body{padding:1.35rem;display:flex;flex-direction:column;gap:1rem;}
+.dz-item{display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+.dz-label{font-size:13px;font-weight:500;}
+.dz-desc{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* ======== MODAL ======== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:480px;position:relative;animation:modalIn 0.22s ease both;max-height:90vh;overflow-y:auto;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
+.modal-header{padding:1.35rem 1.5rem 1rem;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:22px;margin-bottom:3px;}
+.modal-header p{font-size:13px;color:var(--text-muted);}
+.modal-close{position:absolute;top:1rem;right:1rem;background:var(--bg);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-muted);}
+.modal-close:hover{background:var(--border);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+
+/* ======== TOAST ======== */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:0.7rem 1.1rem;border-radius:var(--radius);font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all 0.25s;pointer-events:none;display:flex;align-items:center;gap:8px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+.toast.warn{background:var(--warn);}
+
+/* avatar uploader */
+.avatar-uploader{display:flex;align-items:center;gap:1.25rem;margin-bottom:1.35rem;}
+.avatar-lg{width:72px;height:72px;border-radius:50%;background:var(--navy-faint);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:var(--navy);flex-shrink:0;border:2px solid var(--navy-muted);}
+.avatar-lg.has-image{background-size:cover;background-position:center;background-repeat:no-repeat;color:transparent;}
+.avatar-actions{display:flex;flex-direction:column;gap:6px;}
+.avatar-actions small{font-size:11px;color:var(--text-light);}
+
+/* unsaved indicator */
+.unsaved-bar{position:fixed;bottom:0;left:var(--sidebar-w);right:0;background:var(--navy);color:#fff;padding:0.75rem 2rem;display:none;align-items:center;justify-content:space-between;z-index:150;font-size:13px;}
+.unsaved-bar.show{display:flex;}
+.unsaved-bar-actions{display:flex;gap:8px;}
+.ub-discard{padding:0.4rem 0.85rem;border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);background:none;color:#fff;font-size:12px;cursor:pointer;font-family:'Geist',sans-serif;transition:background 0.15s;}
+.ub-discard:hover{background:rgba(255,255,255,0.1);}
+.ub-save{padding:0.4rem 0.85rem;border:none;border-radius:var(--radius);background:#fff;color:var(--navy);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:opacity 0.15s;}
+.ub-save:hover{opacity:0.9;}
+
+@media (max-width: 980px){
+  .sidebar{position:static;width:100%;}
+  .menu-toggle{display:inline-flex;}
+  .sidebar-body{display:block;max-height:0;opacity:0;overflow:hidden;padding:0 0.75rem;transition:max-height 220ms ease,opacity 180ms ease,padding 180ms ease;}
+  .sidebar.mobile-open .sidebar-body{max-height:520px;opacity:1;padding:0.6rem 0.75rem 0.75rem;}
+  .nav-group-label{display:block;padding:0.65rem 0.2rem 0.3rem;}
+  .nav-item{border-left:0;border-radius:var(--radius);padding:0.5rem 0.75rem;margin-bottom:4px;}
+  .nav-item.active{border-left:0;}
+  .sidebar-footer{display:block;max-height:0;opacity:0;overflow:hidden;padding:0 0.75rem;border-top:0;border-bottom:1px solid rgba(255,255,255,0.08);transition:max-height 220ms ease,opacity 180ms ease,padding 180ms ease;}
+  .sidebar.mobile-open .sidebar-footer{max-height:92px;opacity:1;padding:0.6rem 0.75rem;}
+  .sidebar-footer .user-row{justify-content:flex-end;}
+  .sidebar.mobile-open .menu-toggle span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .sidebar.mobile-open .menu-toggle span:nth-child(2){opacity:0;}
+  .sidebar.mobile-open .menu-toggle span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+
+  .topbar,.main{position:static;left:0;margin-left:0;}
+  .topbar{height:auto;padding:0.9rem 1rem;gap:10px;flex-wrap:wrap;}
+  .topbar-right{width:100%;flex-wrap:wrap;}
+  .main{padding-top:0;}
+
+  .settings-layout{grid-template-columns:1fr;min-height:auto;}
+  .settings-nav{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:0.75rem;border-right:0;border-bottom:1px solid var(--border);}
+  .sn-section-label{display:none;}
+  .sn-item{border:1px solid var(--border);border-radius:999px;white-space:nowrap;border-left:1px solid var(--border);padding:0.5rem 0.85rem;}
+  .sn-item.active{border-color:var(--navy);border-left-color:var(--navy);}
+
+  .settings-content{padding:1rem;}
+  .unsaved-bar{left:0;padding:0.75rem 1rem;flex-wrap:wrap;gap:8px;}
+}
+
+@media (max-width: 720px){
+  .field-group,
+  .field-group-3{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">⬡</div>
+    <div class="logo-text">SwiftPOS</div>
+    <span class="logo-ver">v2.0</span>
+    <button class="menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-body">
+    <div class="nav-group-label">Main</div>
+    <div class="nav-item" data-route="dashboard.html"><span class="ni">▦</span> Dashboard</div>
+    <div class="nav-item" data-route="pos.html"><span class="ni">⊞</span> POS / Cashier</div>
+    <div class="nav-group-label">Management</div>
+    <div class="nav-item" data-route="products.html"><span class="ni">◫</span> Products</div>
+    <div class="nav-item" data-route="inventory.html"><span class="ni">⊟</span> Inventory <span class="nav-badge">6</span></div>
+    <div class="nav-item" data-route="customers.html"><span class="ni">◯</span> Customers</div>
+    <div class="nav-group-label">Analytics</div>
+    <div class="nav-item" data-route="reports.html"><span class="ni">▤</span> Reports</div>
+    <div class="nav-group-label">System</div>
+    <div class="nav-item active" data-route="settings.html"><span class="ni">⚙</span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="user-avatar">AD</div>
+      <div class="user-info"><div class="user-name" id="user-name">Admin User</div><div class="user-role" id="user-role">Administrator</div></div>
+      <button class="logout" id="logout-btn">↩</button>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <h2>Settings</h2>
+    <p id="topbar-sub">Store Profile</p>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-outline" onclick="discardChanges()">Discard</button>
+    <button class="btn btn-navy" onclick="saveSettings()">Save Changes</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="settings-layout">
+
+    <!-- SETTINGS NAV -->
+    <nav class="settings-nav">
+      <div class="sn-section-label">General</div>
+      <div class="sn-item active" onclick="showSection('store',this)"><span class="sn-icon">🏪</span> Store Profile</div>
+      <div class="sn-item" onclick="showSection('appearance',this)"><span class="sn-icon">🎨</span> Appearance</div>
+      <div class="sn-item" onclick="showSection('regional',this)"><span class="sn-icon">🌍</span> Regional</div>
+
+      <div class="sn-section-label">POS & Sales</div>
+      <div class="sn-item" onclick="showSection('pos',this)"><span class="sn-icon">⊞</span> POS Settings</div>
+      <div class="sn-item" onclick="showSection('receipt',this)"><span class="sn-icon">🧾</span> Receipt Setup</div>
+      <div class="sn-item" onclick="showSection('payment',this)"><span class="sn-icon">💳</span> Payment Methods</div>
+      <div class="sn-item" onclick="showSection('tax',this)"><span class="sn-icon">%</span> Tax & Discounts</div>
+
+      <div class="sn-section-label">People</div>
+      <div class="sn-item" onclick="showSection('staff',this)"><span class="sn-icon">◯</span> Staff & Roles</div>
+      <div class="sn-item" onclick="showSection('account',this)"><span class="sn-icon">👤</span> My Account</div>
+
+      <div class="sn-section-label">System</div>
+      <div class="sn-item" onclick="showSection('notifications',this)"><span class="sn-icon">🔔</span> Notifications <span class="sn-badge">3</span></div>
+      <div class="sn-item" onclick="showSection('security',this)"><span class="sn-icon">🔒</span> Security</div>
+      <div class="sn-item" onclick="showSection('backup',this)"><span class="sn-icon">💾</span> Backup & Data</div>
+      <div class="sn-item" onclick="showSection('audit',this)"><span class="sn-icon">▤</span> Audit Log</div>
+    </nav>
+
+    <!-- SETTINGS CONTENT -->
+    <div class="settings-content">
+
+      <!-- ===== STORE PROFILE ===== -->
+      <div class="settings-section active" id="sec-store">
+        <div class="section-hdr"><h3>Store Profile</h3><p>Basic information about your store shown on receipts and reports</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Store Information</div><div class="sch-sub">Details printed on every receipt</div></div></div>
+          <div class="setting-card-body">
+            <div class="avatar-uploader">
+              <div class="avatar-lg" id="store-logo-preview" data-default-text="⬡">⬡</div>
+              <div class="avatar-actions">
+                <button class="btn btn-outline btn-sm" onclick="openStoreLogoPicker()">Upload Logo</button>
+                <button class="btn btn-sm" style="background:none;border:none;color:var(--text-muted);font-family:'Geist',sans-serif;cursor:pointer;font-size:12px;padding:0;" onclick="removeStoreLogo()">Remove</button>
+                <input type="file" id="store-logo-input" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="onStoreLogoSelected(event)"/>
+                <small>PNG or JPG, max 2MB</small>
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field"><label>Store Name</label><input type="text" value="SwiftPOS Store" oninput="markDirty()"/></div>
+              <div class="field"><label>Store ID / Branch Code</label><input type="text" value="KSI-001" oninput="markDirty()"/></div>
+            </div>
+            <div class="field"><label>Store Address</label><input type="text" value="Adum, Kumasi, Ashanti Region, Ghana" oninput="markDirty()"/></div>
+            <div class="field-group">
+              <div class="field"><label>Phone Number</label><input type="tel" value="+233 32 202 0000" oninput="markDirty()"/></div>
+              <div class="field"><label>Email Address</label><input type="email" value="store@swiftpos.com" oninput="markDirty()"/></div>
+            </div>
+            <div class="field"><label>Business Registration Number</label><input type="text" value="GH-BUS-20240011" oninput="markDirty()"/></div>
+            <div class="field"><label>Store Description / Tagline</label><textarea oninput="markDirty()">Your trusted neighbourhood retail store — fast, fresh, and friendly.</textarea></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Business Hours</div><div class="sch-sub">When your store is open</div></div></div>
+          <div class="setting-card-body">
+            <div class="field-group-3">
+              <div class="field"><label>Opening Time</label><input type="time" value="07:00" oninput="markDirty()"/></div>
+              <div class="field"><label>Closing Time</label><input type="time" value="20:00" oninput="markDirty()"/></div>
+              <div class="field"><label>Timezone</label><select oninput="markDirty()"><option selected>GMT+0 (Accra)</option><option>GMT+1 (Lagos)</option></select></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Open on Sundays</div><div class="sr-desc">Allow sales to be processed on Sundays</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Public Holiday Alerts</div><div class="sr-desc">Notify cashiers about public holidays</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== APPEARANCE ===== -->
+      <div class="settings-section" id="sec-appearance">
+        <div class="section-hdr"><h3>Appearance</h3><p>Customise how SwiftPOS looks for your team</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Theme Color</div><div class="sch-sub">Primary color used across the interface</div></div></div>
+          <div class="setting-card-body">
+            <div class="theme-options" id="theme-options">
+              <div class="theme-opt selected" style="background:#0f1f3d;" onclick="selectTheme(this,'#0f1f3d','Navy')" title="Navy (Default)"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#1d4ed8;" onclick="selectTheme(this,'#1d4ed8','Blue')" title="Blue"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#065f46;" onclick="selectTheme(this,'#065f46','Green')" title="Green"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#7c3aed;" onclick="selectTheme(this,'#7c3aed','Purple')" title="Purple"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#b45309;" onclick="selectTheme(this,'#b45309','Amber')" title="Amber"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#be123c;" onclick="selectTheme(this,'#be123c','Rose')" title="Rose"><div class="check">✓</div></div>
+              <div class="theme-opt" style="background:#374151;" onclick="selectTheme(this,'#374151','Slate')" title="Slate"><div class="check">✓</div></div>
+            </div>
+            <div style="margin-top:1rem;font-size:12px;color:var(--text-muted);">Selected: <span id="theme-label" style="font-weight:500;color:var(--text);">Navy (Default)</span></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Display Preferences</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Compact Sidebar</div><div class="sr-desc">Show only icons in the sidebar to save space</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Show Product Images</div><div class="sr-desc">Display emoji icons on the POS product grid</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Animations</div><div class="sr-desc">Enable UI transitions and micro-interactions</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Dense Table Mode</div><div class="sr-desc">Reduce row padding to show more data at once</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Default View</div><div class="sr-desc">Starting page after login</div></div>
+              <div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>Dashboard</option><option>POS / Cashier</option><option>Reports</option></select></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REGIONAL ===== -->
+      <div class="settings-section" id="sec-regional">
+        <div class="section-hdr"><h3>Regional Settings</h3><p>Currency, language, date and number formats</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Locale & Currency</div></div></div>
+          <div class="setting-card-body">
+            <div class="field-group">
+              <div class="field"><label>Currency</label><select onchange="markDirty()"><option selected>GHS — Ghanaian Cedi (GH₵)</option><option>USD — US Dollar ($)</option><option>NGN — Nigerian Naira (₦)</option><option>KES — Kenyan Shilling (KSh)</option></select></div>
+              <div class="field"><label>Language</label><select onchange="markDirty()"><option selected>English (Ghana)</option><option>English (UK)</option><option>French</option></select></div>
+              <div class="field"><label>Date Format</label><select onchange="markDirty()"><option selected>DD/MM/YYYY</option><option>MM/DD/YYYY</option><option>YYYY-MM-DD</option></select></div>
+              <div class="field"><label>Time Format</label><select onchange="markDirty()"><option selected>12-hour (AM/PM)</option><option>24-hour</option></select></div>
+            </div>
+            <div class="field-group">
+              <div class="field"><label>Decimal Separator</label><select onchange="markDirty()"><option selected>Period ( . )</option><option>Comma ( , )</option></select></div>
+              <div class="field"><label>Thousands Separator</label><select onchange="markDirty()"><option selected>Comma ( , )</option><option>Period ( . )</option><option>Space</option></select></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== POS SETTINGS ===== -->
+      <div class="settings-section" id="sec-pos">
+        <div class="section-hdr"><h3>POS Settings</h3><p>Configure how the cashier terminal behaves</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Transaction Behaviour</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Require Customer on Every Sale</div><div class="sr-desc">Force cashier to select a customer before checkout</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Allow Negative Stock Sales</div><div class="sr-desc">Permit sales even when stock level hits zero</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Auto-print Receipt</div><div class="sr-desc">Automatically send to printer after every sale</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Barcode Scanner Mode</div><div class="sr-desc">Optimise input for USB barcode scanners</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Cashier PIN Confirmation</div><div class="sr-desc">Require 4-digit PIN before each transaction</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Max Items Per Cart</div><div class="sr-desc">Limit the number of line items in one transaction</div></div>
+              <div class="sr-right"><input type="number" value="50" min="1" max="200" style="width:70px;padding:0.35rem 0.5rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Geist Mono',monospace;text-align:center;outline:none;" oninput="markDirty()"/></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Session Auto-logout (minutes)</div><div class="sr-desc">Automatically log out cashier after inactivity</div></div>
+              <div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>15 min</option><option selected>30 min</option><option>60 min</option><option>Never</option></select></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RECEIPT ===== -->
+      <div class="settings-section" id="sec-receipt">
+        <div class="section-hdr"><h3>Receipt Setup</h3><p>Customise what appears on printed and digital receipts</p></div>
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:1.25rem;">
+          <div>
+            <div class="setting-card">
+              <div class="setting-card-header"><div><div class="sch-title">Receipt Content</div></div></div>
+              <div class="setting-card-body">
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Store Logo</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty();updateReceiptPreview()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Cashier Name</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty();updateReceiptPreview()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Customer Name</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Tax Breakdown</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Loyalty Points</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="setting-row">
+                  <div class="sr-left"><div class="sr-label">Show Barcode on Receipt</div></div>
+                  <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+                </div>
+                <div class="field" style="margin-top:1rem;">
+                  <label>Footer Message</label>
+                  <textarea oninput="markDirty()">Thank you for shopping with us! Visit again soon.</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">Receipt Preview</div>
+            <div class="receipt-preview" id="receipt-preview">
+              <div class="rp-title">SwiftPOS Store</div>
+              <div style="font-size:10px;text-align:center;color:var(--text-muted);">Adum, Kumasi · +233 32 202 0000</div>
+              <div class="rp-divider"></div>
+              <div style="font-size:10px;color:var(--text-muted);">TXN-00413 · 27/03/2026 14:32</div>
+              <div style="font-size:10px;color:var(--text-muted);">Cashier: Ama Darko</div>
+              <div style="font-size:10px;color:var(--text-muted);">Customer: Kwame Mensah</div>
+              <div class="rp-divider"></div>
+              <div class="rp-row"><span>Bottled Water ×3</span><span>GH₵ 6.00</span></div>
+              <div class="rp-row"><span>Milo 400g ×1</span><span>GH₵ 12.00</span></div>
+              <div class="rp-row"><span>Indomie ×2</span><span>GH₵ 10.00</span></div>
+              <div class="rp-divider"></div>
+              <div class="rp-row"><span>Subtotal</span><span>GH₵ 28.00</span></div>
+              <div class="rp-row"><span>Tax (5%)</span><span>GH₵ 1.40</span></div>
+              <div class="rp-divider"></div>
+              <div class="rp-row" style="font-weight:600;font-size:13px;"><span>TOTAL</span><span>GH₵ 29.40</span></div>
+              <div class="rp-row"><span>Cash Paid</span><span>GH₵ 30.00</span></div>
+              <div class="rp-row"><span>Change</span><span>GH₵ 0.60</span></div>
+              <div class="rp-divider"></div>
+              <div style="font-size:10px;color:var(--text-muted);text-align:center;line-height:1.8;">★ Loyalty Points: 480 pts<br/>Thank you for shopping with us!<br/>Visit again soon.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PAYMENT ===== -->
+      <div class="settings-section" id="sec-payment">
+        <div class="section-hdr"><h3>Payment Methods</h3><p>Enable or disable payment options at the POS terminal</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Accepted Payments</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">💵 Cash</div><div class="sr-desc">Accept physical cash payments</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">📱 Mobile Money (MoMo)</div><div class="sr-desc">MTN, Vodafone Cash, AirtelTigo Money</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">💳 Credit / Debit Card</div><div class="sr-desc">Visa, Mastercard via POS terminal reader</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">⇌ Split Payment</div><div class="sr-desc">Allow payment across multiple methods</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">📋 Store Credit</div><div class="sr-desc">Allow customers to pay on account</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">🏷 Voucher / Coupon</div><div class="sr-desc">Accept discount voucher codes at checkout</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Mobile Money Numbers</div><div class="sch-sub">Merchant numbers for each network</div></div></div>
+          <div class="setting-card-body">
+            <div class="field-group">
+              <div class="field"><label>MTN MoMo</label><input type="tel" placeholder="024 XXX XXXX" oninput="markDirty()"/></div>
+              <div class="field"><label>Vodafone Cash</label><input type="tel" placeholder="020 XXX XXXX" oninput="markDirty()"/></div>
+              <div class="field"><label>AirtelTigo Money</label><input type="tel" placeholder="027 XXX XXXX" oninput="markDirty()"/></div>
+              <div class="field"><label>Merchant Name</label><input type="text" placeholder="SwiftPOS Store" oninput="markDirty()"/></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAX ===== -->
+      <div class="settings-section" id="sec-tax">
+        <div class="section-hdr"><h3>Tax &amp; Discounts</h3><p>Configure tax rates and discount rules</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Tax Configuration</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Enable Tax</div><div class="sr-desc">Apply VAT/tax to all transactions</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Tax Inclusive Pricing</div><div class="sr-desc">Product prices already include tax (no tax added at checkout)</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="field-group" style="margin-top:1rem;">
+              <div class="field"><label>Tax Name</label><input type="text" value="VAT" oninput="markDirty()"/></div>
+              <div class="field"><label>Tax Rate (%)</label><input type="number" value="5" min="0" max="100" step="0.1" oninput="markDirty()"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Discount Rules</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Allow Cashier Discounts</div><div class="sr-desc">Let cashiers apply discounts at the POS</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Max Discount (%)</div><div class="sr-desc">Maximum discount a cashier can apply without manager approval</div></div>
+              <div class="sr-right"><input type="number" value="10" min="0" max="100" style="width:70px;padding:0.35rem 0.5rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Geist Mono',monospace;text-align:center;outline:none;" oninput="markDirty()"/></div>
+            </div>
+            <div class="setting-row">
+              <div class="sr-left"><div class="sr-label">Manager Approval for High Discounts</div><div class="sr-desc">Require manager PIN for discounts above the max threshold</div></div>
+              <div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== STAFF & ROLES ===== -->
+      <div class="settings-section" id="sec-staff">
+        <div class="section-hdr"><h3>Staff &amp; Roles</h3><p>Manage your team, their roles and system access</p></div>
+        <div class="setting-card" style="padding:0;overflow:hidden;">
+          <div class="setting-card-header">
+            <div><div class="sch-title">Team Members</div><div class="sch-sub">4 active staff members</div></div>
+            <button class="btn btn-navy btn-sm" onclick="openAddStaff()">+ Add Staff</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Staff Member</th><th>Role</th><th>PIN</th><th>Last Login</th><th>Status</th><th style="text-align:right;">Actions</th></tr></thead>
+              <tbody id="staff-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="setting-card" style="margin-top:1.25rem;">
+          <div class="setting-card-header"><div><div class="sch-title">Role Permissions</div><div class="sch-sub">What each role can access</div></div></div>
+          <div class="setting-card-body">
+            <div style="overflow-x:auto;">
+              <table style="font-size:12px;">
+                <thead><tr><th style="text-align:left;padding:0.5rem 0.75rem;font-size:10px;">Permission</th><th style="padding:0.5rem 0.75rem;text-align:center;">Admin</th><th style="padding:0.5rem 0.75rem;text-align:center;">Manager</th><th style="padding:0.5rem 0.75rem;text-align:center;">Cashier</th></tr></thead>
+                <tbody id="perms-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MY ACCOUNT ===== -->
+      <div class="settings-section" id="sec-account">
+        <div class="section-hdr"><h3>My Account</h3><p>Update your personal profile and password</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Profile Information</div></div></div>
+          <div class="setting-card-body">
+            <div class="avatar-uploader">
+              <div class="avatar-lg" id="account-photo-preview" data-default-text="AD" style="background:var(--navy-faint);color:var(--navy);">AD</div>
+              <div class="avatar-actions">
+                <button class="btn btn-outline btn-sm" onclick="openAccountPhotoPicker()">Change Photo</button>
+                <button class="btn btn-sm" style="background:none;border:none;color:var(--text-muted);font-family:'Geist',sans-serif;cursor:pointer;font-size:12px;padding:0;" onclick="removeAccountPhoto()">Remove</button>
+                <input type="file" id="account-photo-input" accept="image/png,image/jpeg,image/webp" style="display:none;" onchange="onAccountPhotoSelected(event)"/>
+                <small>Visible to all team members</small>
+              </div>
+            </div>
+            <div class="field-group">
+              <div class="field"><label>First Name</label><input type="text" value="Admin" oninput="markDirty()"/></div>
+              <div class="field"><label>Last Name</label><input type="text" value="User" oninput="markDirty()"/></div>
+            </div>
+            <div class="field-group">
+              <div class="field"><label>Email Address</label><input type="email" value="admin@swiftpos.com" oninput="markDirty()"/></div>
+              <div class="field"><label>Phone Number</label><input type="tel" value="+233 24 000 0000" oninput="markDirty()"/></div>
+            </div>
+            <div class="field"><label>Role</label><input type="text" value="Administrator" disabled style="background:var(--bg);color:var(--text-muted);cursor:not-allowed;"/></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Change Password</div></div></div>
+          <div class="setting-card-body">
+            <div class="field"><label>Current Password</label><input type="password" placeholder="••••••••" oninput="markDirty()"/></div>
+            <div class="field-group">
+              <div class="field"><label>New Password</label><input type="password" placeholder="••••••••" oninput="markDirty()"/></div>
+              <div class="field"><label>Confirm New Password</label><input type="password" placeholder="••••••••" oninput="markDirty()"/></div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top:0.5rem;" onclick="showToast('Password updated successfully ✓','success')">Update Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NOTIFICATIONS ===== -->
+      <div class="settings-section" id="sec-notifications">
+        <div class="section-hdr"><h3>Notifications</h3><p>Choose which alerts you receive and how</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Alert Types</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Low Stock Alerts</div><div class="sr-desc">Notify when a product falls below minimum stock level</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Daily Sales Summary</div><div class="sr-desc">Email a summary report at end of each business day</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Large Transaction Alert</div><div class="sr-desc">Notify admin for transactions above GH₵ 500</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Failed Login Attempts</div><div class="sr-desc">Alert on 3+ consecutive failed logins</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Refund Processed</div><div class="sr-desc">Notify admin whenever a refund is issued</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">New Customer Registration</div><div class="sr-desc">Alert when a new customer is added</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Notification Channels</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">In-App Notifications</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Email Notifications</div><div class="sr-desc">admin@swiftpos.com</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">SMS Alerts</div><div class="sr-desc">+233 24 000 0000</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SECURITY ===== -->
+      <div class="settings-section" id="sec-security">
+        <div class="section-hdr"><h3>Security</h3><p>Protect your system and manage access controls</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Authentication</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Two-Factor Authentication</div><div class="sr-desc">Require OTP code on login for Admin accounts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Force Password Change Every 90 Days</div><div class="sr-desc">Staff must reset passwords quarterly</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Lock Account After Failed Logins</div><div class="sr-desc">Lock after 5 consecutive failed attempts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Session Timeout (minutes)</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>15</option><option selected>30</option><option>60</option><option>120</option></select></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== BACKUP ===== -->
+      <div class="settings-section" id="sec-backup">
+        <div class="section-hdr"><h3>Backup &amp; Data</h3><p>Manage database backups and export your data</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Automatic Backup</div></div></div>
+          <div class="setting-card-body">
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Enable Auto-Backup</div><div class="sr-desc">Automatically backup the database on a schedule</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Backup Frequency</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>Every 6 hours</option><option selected>Daily</option><option>Weekly</option></select></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Keep Backups For</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>7 days</option><option selected>30 days</option><option>90 days</option></select></div></div>
+            <div style="margin-top:1rem;display:flex;gap:8px;">
+              <button class="btn btn-outline" onclick="showToast('Creating backup now…','success')">⟳ Backup Now</button>
+              <button class="btn btn-outline" onclick="showToast('Downloading last backup…')">↓ Download Last Backup</button>
+            </div>
+            <div style="margin-top:1rem;background:var(--success-bg);border-radius:var(--radius);padding:0.75rem 1rem;font-size:12px;color:#065f46;display:flex;align-items:center;gap:8px;"><span>✓</span> Last backup: Today at 03:00 AM · 2.4 MB</div>
+          </div>
+        </div>
+        <div class="setting-card">
+          <div class="setting-card-header"><div><div class="sch-title">Data Export</div><div class="sch-sub">Export your data in various formats</div></div></div>
+          <div class="setting-card-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+              <button class="btn btn-outline" onclick="showToast('Exporting products CSV…','success')">Products CSV</button>
+              <button class="btn btn-outline" onclick="showToast('Exporting customers CSV…','success')">Customers CSV</button>
+              <button class="btn btn-outline" onclick="showToast('Exporting sales CSV…','success')">Sales CSV</button>
+              <button class="btn btn-outline" onclick="showToast('Exporting inventory CSV…','success')">Inventory CSV</button>
+              <button class="btn btn-outline" onclick="showToast('Exporting full report PDF…','success')">Full Report PDF</button>
+              <button class="btn btn-outline" onclick="showToast('Exporting full database…','success')">Full DB Export</button>
+            </div>
+          </div>
+        </div>
+        <div class="danger-zone">
+          <div class="danger-zone-header"><div class="dz-title">Danger Zone</div><div class="dz-sub">These actions are irreversible</div></div>
+          <div class="danger-zone-body">
+            <div class="dz-item"><div><div class="dz-label">Clear All Transactions</div><div class="dz-desc">Permanently delete all sales history</div></div><button class="btn btn-danger btn-sm" onclick="confirmDanger('Clear all transaction history? This cannot be undone.')">Clear Transactions</button></div>
+            <div class="dz-item"><div><div class="dz-label">Reset System</div><div class="dz-desc">Wipe all data and restore factory defaults</div></div><button class="btn btn-danger btn-sm" onclick="confirmDanger('Reset the entire system? ALL data will be lost permanently.')">Reset System</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== AUDIT LOG ===== -->
+      <div class="settings-section" id="sec-audit">
+        <div class="section-hdr"><h3>Audit Log</h3><p>Full history of system changes and staff actions</p></div>
+        <div class="setting-card">
+          <div class="setting-card-header">
+            <div><div class="sch-title">Activity Log</div><div class="sch-sub">Last 10 system events</div></div>
+            <button class="btn btn-outline btn-sm" onclick="showToast('Exporting audit log…','success')">↓ Export Log</button>
+          </div>
+          <div class="setting-card-body" style="padding:0 1.35rem;">
+            <div id="audit-log"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end settings-content -->
+  </div>
+</main>
+
+<!-- ADD STAFF MODAL -->
+<div class="modal-overlay" id="modal-staff">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Staff Member</h3><p>Create a new account for your team</p><button class="modal-close" onclick="closeModal('modal-staff')">✕</button></div>
+    <div class="modal-body">
+      <div class="field-group">
+        <div class="field"><label>First Name</label><input type="text" id="sf-fname" placeholder="Ama"/></div>
+        <div class="field"><label>Last Name</label><input type="text" id="sf-lname" placeholder="Darko"/></div>
+      </div>
+      <div class="field"><label>Email Address</label><input type="email" id="sf-email" placeholder="ama@swiftpos.com"/></div>
+      <div class="field"><label>Phone Number</label><input type="tel" id="sf-phone" placeholder="+233 24 XXX XXXX"/></div>
+      <div class="field-group">
+        <div class="field"><label>Role</label><select id="sf-role"><option>Cashier</option><option>Manager</option><option>Admin</option></select></div>
+        <div class="field"><label>PIN (4 digits)</label><input type="password" id="sf-pin" maxlength="4" placeholder="••••"/></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-staff')">Cancel</button><button class="btn btn-navy" onclick="addStaff()">Add Staff Member</button></div>
+  </div>
+</div>
+
+<div class="unsaved-bar" id="unsaved-bar">
+  <span>⚠ You have unsaved changes</span>
+  <div class="unsaved-bar-actions">
+    <button class="ub-discard" onclick="discardChanges()">Discard</button>
+    <button class="ub-save" onclick="saveSettings()">Save Changes</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app-config.js"></script>
+<script>
+const POS_CONFIG_SAFE = window.POS_CONFIG || {
+  API_BASE_URL: 'http://127.0.0.1:8000/api/v1',
+  ACCESS_TOKEN_KEY: 'pos_access_token',
+  REFRESH_TOKEN_KEY: 'pos_refresh_token',
+  USER_ROLE_KEY: 'pos_user_role',
+  USER_NAME_KEY: 'pos_user_name',
+};
+
+const { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, USER_ROLE_KEY, USER_NAME_KEY } = POS_CONFIG_SAFE;
+const USER_AVATAR_URL_KEY = 'pos_user_avatar_url';
+
+function normalizeRole(rawRole) {
+  const upper = String(rawRole || 'ADMIN').toUpperCase();
+  return ['ADMIN', 'MANAGER', 'CASHIER'].includes(upper) ? upper : 'ADMIN';
+}
+
+function roleDisplayName(role) {
+  if (role === 'MANAGER') return 'Manager';
+  if (role === 'CASHIER') return 'Cashier';
+  return 'Administrator';
+}
+
+function clearAuthAndRedirectToLogin() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(USER_ROLE_KEY);
+  localStorage.removeItem(USER_NAME_KEY);
+  window.location.href = 'login.html';
+}
+
+function initializeAccessControl() {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (!token) {
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  const role = normalizeRole(localStorage.getItem(USER_ROLE_KEY));
+  if (role !== 'ADMIN') {
+    window.location.href = 'dashboard.html';
+    return false;
+  }
+
+  const username = localStorage.getItem(USER_NAME_KEY) || 'Admin User';
+  const avatar = username
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() || '')
+    .join('') || 'AD';
+
+  document.getElementById('user-name').textContent = username;
+  document.getElementById('user-role').textContent = roleDisplayName(role);
+  document.getElementById('user-avatar').textContent = avatar;
+
+  const savedAvatarUrl = localStorage.getItem(USER_AVATAR_URL_KEY) || '';
+  if (savedAvatarUrl) {
+    applySidebarAvatar(savedAvatarUrl);
+  }
+
+  const accountPhotoNode = document.getElementById('account-photo-preview');
+  if (accountPhotoNode && !accountPhotoDataUrl) {
+    accountPhotoNode.setAttribute('data-default-text', avatar);
+    accountPhotoNode.textContent = avatar;
+  }
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    clearAuthAndRedirectToLogin();
+  });
+
+  document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
+    node.addEventListener('click', () => {
+      const route = node.getAttribute('data-route');
+      if (route) window.location.href = route;
+    });
+  });
+
+  return true;
+}
+
+// ─── STAFF DATA ───
+let staff = [
+  {id:'S001',fname:'Admin',lname:'User',email:'admin@swiftpos.com',role:'Admin',pin:'****',lastLogin:'Today 08:15',status:'active',color:'#dbeafe',textColor:'#1e40af'},
+  {id:'S002',fname:'Ama',lname:'Darko',email:'ama@swiftpos.com',role:'Cashier',pin:'****',lastLogin:'Today 07:52',status:'active',color:'#d1fae5',textColor:'#065f46'},
+  {id:'S003',fname:'Kofi',lname:'Boateng',email:'kofi@swiftpos.com',role:'Cashier',pin:'****',lastLogin:'Today 08:00',status:'active',color:'#fef3c7',textColor:'#92400e'},
+  {id:'S004',fname:'Akosua',lname:'Frimpong',email:'akosua@swiftpos.com',role:'Manager',pin:'****',lastLogin:'Yesterday',status:'active',color:'#ede9fe',textColor:'#4c1d95'},
+];
+
+const PERMS = [
+  {name:'View Dashboard',admin:true,manager:true,cashier:false},
+  {name:'Process Sales',admin:true,manager:true,cashier:true},
+  {name:'Apply Discounts',admin:true,manager:true,cashier:true},
+  {name:'Issue Refunds',admin:true,manager:true,cashier:false},
+  {name:'Manage Products',admin:true,manager:true,cashier:false},
+  {name:'View Inventory',admin:true,manager:true,cashier:false},
+  {name:'Adjust Stock',admin:true,manager:true,cashier:false},
+  {name:'View Reports',admin:true,manager:true,cashier:false},
+  {name:'Manage Customers',admin:true,manager:true,cashier:true},
+  {name:'Access Settings',admin:true,manager:false,cashier:false},
+  {name:'Manage Staff',admin:true,manager:false,cashier:false},
+];
+
+const AUDIT_EVENTS = [
+  {type:'settings',color:'#0f1f3d',title:'Settings saved','sub':'Store profile updated by Admin User','time':'Today 14:20'},
+  {type:'staff',color:'#059669',title:'Staff login','sub':'Ama Darko logged in · Cashier session started','time':'Today 07:52'},
+  {type:'sale',color:'#1e40af',title:'High-value transaction','sub':'TXN-00412 · GH₵ 290.00 · Card payment','time':'Today 13:55'},
+  {type:'stock',color:'#d97706',title:'Low stock alert triggered','sub':'Dettol Soap 100g · 2 units remaining','time':'Today 12:00'},
+  {type:'refund',color:'#dc2626',title:'Refund issued','sub':'TXN-00398 · GH₵ 12.00 · Kofi Boateng','time':'Today 11:45'},
+  {type:'staff',color:'#059669',title:'New staff added','sub':'Yaw Asante added as Cashier by Admin User','time':'Yesterday 16:30'},
+  {type:'settings',color:'#0f1f3d',title:'Tax rate updated','sub':'Changed from 3% to 5% by Admin User','time':'Yesterday 10:10'},
+  {type:'backup',color:'#7c3aed',title:'Auto-backup completed','sub':'Database backup 2.4MB · Stored locally','time':'Today 03:00'},
+  {type:'stock',color:'#d97706',title:'Stock adjusted manually','sub':'Bottled Water +80 units · Admin User','time':'2 days ago'},
+  {type:'sale',color:'#1e40af',title:'Shift ended','sub':'Ama Darko · 32 transactions · GH₵ 1,840','time':'2 days ago'},
+];
+
+let isDirty = false;
+let lastSavedPayload = null;
+let storeLogoDataUrl = '';
+let accountPhotoDataUrl = '';
+
+async function apiRequest(path, options = {}) {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    ...(options.headers || {}),
+  };
+
+  const response = await fetch(`${POS_CONFIG_SAFE.API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401) {
+    clearAuthAndRedirectToLogin();
+    throw new Error('Session expired.');
+  }
+
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`;
+    try {
+      const errorPayload = await response.json();
+      if (errorPayload?.detail) message = String(errorPayload.detail);
+    } catch {
+      // Keep default message.
+    }
+    throw new Error(message);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
+}
+
+function readSectionState(sectionId) {
+  const root = document.getElementById(sectionId);
+  if (!root) return [];
+
+  const controls = Array.from(root.querySelectorAll('input, select, textarea')).filter((control) => {
+    const type = String(control.type || '').toLowerCase();
+    return type !== 'file';
+  });
+  return controls.map((control, index) => {
+    const type = (control.type || control.tagName || '').toLowerCase();
+    const key = control.id || control.name || `${sectionId}:${index}`;
+    if (type === 'checkbox' || type === 'radio') {
+      return { key, type, checked: !!control.checked };
+    }
+    return { key, type, value: control.value ?? '' };
+  });
+}
+
+function applySectionState(sectionId, savedRows) {
+  if (!Array.isArray(savedRows) || !savedRows.length) return;
+  const root = document.getElementById(sectionId);
+  if (!root) return;
+
+  const controls = Array.from(root.querySelectorAll('input, select, textarea')).filter((control) => {
+    const type = String(control.type || '').toLowerCase();
+    return type !== 'file';
+  });
+  const byKey = new Map(savedRows.map((row) => [row.key, row]));
+
+  controls.forEach((control, index) => {
+    const key = control.id || control.name || `${sectionId}:${index}`;
+    const row = byKey.get(key);
+    if (!row) return;
+
+    const type = (control.type || control.tagName || '').toLowerCase();
+    if ((type === 'checkbox' || type === 'radio') && typeof row.checked === 'boolean') {
+      control.checked = row.checked;
+      return;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(row, 'value')) {
+      control.value = row.value;
+    }
+  });
+}
+
+function collectSettingsPayload() {
+  const selectedThemeNode = document.querySelector('.theme-opt.selected');
+  return {
+    store_profile: {
+      controls: readSectionState('sec-store'),
+      logo_data_url: storeLogoDataUrl,
+    },
+    appearance: {
+      controls: readSectionState('sec-appearance'),
+      theme_label: document.getElementById('theme-label')?.textContent || '',
+      theme_color: selectedThemeNode?.style?.background || '#0f1f3d',
+      profile_photo_data_url: accountPhotoDataUrl,
+    },
+    regional: { controls: readSectionState('sec-regional') },
+    pos: { controls: readSectionState('sec-pos') },
+    receipt: { controls: readSectionState('sec-receipt') },
+    payment: { controls: readSectionState('sec-payment') },
+    tax: { controls: readSectionState('sec-tax') },
+    notifications: { controls: readSectionState('sec-notifications') },
+    security: { controls: readSectionState('sec-security') },
+    backup: { controls: readSectionState('sec-backup') },
+    staff,
+  };
+}
+
+async function persistImageSettings() {
+  const payload = {
+    store_profile: {
+      ...(lastSavedPayload?.store_profile || {}),
+      logo_data_url: storeLogoDataUrl,
+    },
+    appearance: {
+      ...(lastSavedPayload?.appearance || {}),
+      profile_photo_data_url: accountPhotoDataUrl,
+    },
+  };
+
+  const saved = await apiRequest('/common/settings/', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  lastSavedPayload = saved;
+}
+
+function applyThemeState(themeColor, themeLabel) {
+  if (!themeColor) return;
+  const options = Array.from(document.querySelectorAll('.theme-opt'));
+  options.forEach((node) => node.classList.remove('selected'));
+
+  const exact = options.find((node) => String(node.style.background || '').toLowerCase() === String(themeColor).toLowerCase());
+  if (exact) {
+    exact.classList.add('selected');
+  } else if (options[0]) {
+    options[0].classList.add('selected');
+  }
+
+  if (themeLabel) {
+    const labelNode = document.getElementById('theme-label');
+    if (labelNode) labelNode.textContent = themeLabel;
+  }
+}
+
+function applyAvatarPreview(nodeId, dataUrl) {
+  const node = document.getElementById(nodeId);
+  if (!node) return;
+
+  const fallbackText = node.getAttribute('data-default-text') || '';
+  if (dataUrl) {
+    node.style.backgroundImage = `url(${dataUrl})`;
+    node.classList.add('has-image');
+    node.textContent = fallbackText;
+    applySidebarAvatar(dataUrl);
+    return;
+  }
+
+  node.style.backgroundImage = '';
+  node.classList.remove('has-image');
+  node.textContent = fallbackText;
+  applySidebarAvatar('');
+}
+
+function applySidebarAvatar(dataUrl) {
+  const node = document.getElementById('user-avatar');
+  if (!node) return;
+  if (dataUrl) {
+    node.style.backgroundImage = `url(${dataUrl})`;
+    node.classList.add('has-image');
+    localStorage.setItem(USER_AVATAR_URL_KEY, dataUrl);
+    return;
+  }
+  node.style.backgroundImage = '';
+  node.classList.remove('has-image');
+  localStorage.removeItem(USER_AVATAR_URL_KEY);
+}
+
+function validateImageFile(file) {
+  if (!file) {
+    throw new Error('No file selected.');
+  }
+  if (!String(file.type || '').startsWith('image/')) {
+    throw new Error('Please select an image file.');
+  }
+  if (file.size > (2 * 1024 * 1024)) {
+    throw new Error('Image must be 2MB or smaller.');
+  }
+}
+
+async function uploadSettingsImage(file, target) {
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('target', target);
+
+  const response = await fetch(`${POS_CONFIG_SAFE.API_BASE_URL}/common/settings/upload-image/`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (response.status === 401) {
+    clearAuthAndRedirectToLogin();
+    throw new Error('Session expired.');
+  }
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch {
+    // Ignore parse errors and use fallback below.
+  }
+
+  if (!response.ok) {
+    throw new Error(payload?.detail || `Upload failed (${response.status})`);
+  }
+
+  const url = String(payload?.url || '').trim();
+  if (!url) {
+    throw new Error('Upload succeeded but no URL was returned.');
+  }
+  return url;
+}
+
+function openStoreLogoPicker() {
+  const input = document.getElementById('store-logo-input');
+  if (input) input.click();
+}
+
+function openAccountPhotoPicker() {
+  const input = document.getElementById('account-photo-input');
+  if (input) input.click();
+}
+
+async function onStoreLogoSelected(event) {
+  try {
+    const file = event.target?.files?.[0];
+    validateImageFile(file);
+    const localPreview = URL.createObjectURL(file);
+    applyAvatarPreview('store-logo-preview', localPreview);
+
+    storeLogoDataUrl = await uploadSettingsImage(file, 'store_logo');
+    applyAvatarPreview('store-logo-preview', `${storeLogoDataUrl}?v=${Date.now()}`);
+    await persistImageSettings();
+    isDirty = false;
+    document.getElementById('unsaved-bar').classList.remove('show');
+    showToast('Store logo uploaded and saved', 'success');
+  } catch (error) {
+    showToast(error.message || 'Invalid image file', 'error');
+  } finally {
+    if (event.target) event.target.value = '';
+  }
+}
+
+async function onAccountPhotoSelected(event) {
+  try {
+    const file = event.target?.files?.[0];
+    validateImageFile(file);
+    const localPreview = URL.createObjectURL(file);
+    applyAvatarPreview('account-photo-preview', localPreview);
+
+    accountPhotoDataUrl = await uploadSettingsImage(file, 'profile_photo');
+    applyAvatarPreview('account-photo-preview', `${accountPhotoDataUrl}?v=${Date.now()}`);
+    await persistImageSettings();
+    isDirty = false;
+    document.getElementById('unsaved-bar').classList.remove('show');
+    showToast('Profile photo uploaded and saved', 'success');
+  } catch (error) {
+    showToast(error.message || 'Invalid image file', 'error');
+  } finally {
+    if (event.target) event.target.value = '';
+  }
+}
+
+async function removeStoreLogo() {
+  storeLogoDataUrl = '';
+  applyAvatarPreview('store-logo-preview', '');
+  try {
+    await persistImageSettings();
+  } catch (error) {
+    showToast(error.message || 'Unable to save image change', 'error');
+    return;
+  }
+  isDirty = false;
+  document.getElementById('unsaved-bar').classList.remove('show');
+  showToast('Store logo removed and saved');
+}
+
+async function removeAccountPhoto() {
+  accountPhotoDataUrl = '';
+  applyAvatarPreview('account-photo-preview', '');
+  try {
+    await persistImageSettings();
+  } catch (error) {
+    showToast(error.message || 'Unable to save image change', 'error');
+    return;
+  }
+  isDirty = false;
+  document.getElementById('unsaved-bar').classList.remove('show');
+  showToast('Profile photo removed and saved');
+}
+
+function applySettingsPayload(payload) {
+  applySectionState('sec-store', payload?.store_profile?.controls || []);
+  applySectionState('sec-appearance', payload?.appearance?.controls || []);
+  applySectionState('sec-regional', payload?.regional?.controls || []);
+  applySectionState('sec-pos', payload?.pos?.controls || []);
+  applySectionState('sec-receipt', payload?.receipt?.controls || []);
+  applySectionState('sec-payment', payload?.payment?.controls || []);
+  applySectionState('sec-tax', payload?.tax?.controls || []);
+  applySectionState('sec-notifications', payload?.notifications?.controls || []);
+  applySectionState('sec-security', payload?.security?.controls || []);
+  applySectionState('sec-backup', payload?.backup?.controls || []);
+
+  applyThemeState(payload?.appearance?.theme_color, payload?.appearance?.theme_label);
+
+  storeLogoDataUrl = String(payload?.store_profile?.logo_data_url || '');
+  accountPhotoDataUrl = String(payload?.appearance?.profile_photo_data_url || '');
+  applyAvatarPreview('store-logo-preview', storeLogoDataUrl ? `${storeLogoDataUrl}?v=${Date.now()}` : '');
+  applyAvatarPreview('account-photo-preview', accountPhotoDataUrl ? `${accountPhotoDataUrl}?v=${Date.now()}` : '');
+
+  if (Array.isArray(payload?.staff) && payload.staff.length) {
+    staff = payload.staff;
+    renderStaff();
+  }
+}
+
+async function loadSettingsFromBackend() {
+  const payload = await apiRequest('/common/settings/');
+  lastSavedPayload = payload;
+  applySettingsPayload(payload);
+}
+
+function markDirty() {
+  isDirty = true;
+  document.getElementById('unsaved-bar').classList.add('show');
+}
+
+function discardChanges() {
+  if (lastSavedPayload) {
+    applySettingsPayload(lastSavedPayload);
+  }
+  isDirty = false;
+  document.getElementById('unsaved-bar').classList.remove('show');
+  showToast('Changes discarded');
+}
+
+async function saveSettings() {
+  try {
+    const payload = collectSettingsPayload();
+    const saved = await apiRequest('/common/settings/', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    lastSavedPayload = saved;
+    isDirty = false;
+    document.getElementById('unsaved-bar').classList.remove('show');
+    showToast('Settings saved successfully', 'success');
+  } catch (error) {
+    showToast(error.message || 'Unable to save settings', 'error');
+  }
+}
+
+// ─── SECTION NAV ───
+function showSection(id, el) {
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sn-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  el.classList.add('active');
+  const labels = {
+    store:'Store Profile',appearance:'Appearance',regional:'Regional Settings',
+    pos:'POS Settings',receipt:'Receipt Setup',payment:'Payment Methods',tax:'Tax & Discounts',
+    staff:'Staff & Roles',account:'My Account',notifications:'Notifications',
+    security:'Security',backup:'Backup & Data',audit:'Audit Log'
+  };
+  document.getElementById('topbar-sub').textContent = labels[id] || id;
+}
+
+// ─── THEME ───
+function selectTheme(el, color, name) {
+  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('theme-label').textContent = name;
+  markDirty();
+  showToast('Theme preview: ' + name + ' (save to apply)');
+}
+
+// ─── STAFF TABLE ───
+function renderStaff() {
+  document.getElementById('staff-tbody').innerHTML = staff.map(s => `
+    <tr>
+      <td>
+        <div class="staff-cell">
+          <div class="staff-avatar" style="background:${s.color};color:${s.textColor};">${s.fname[0]}${s.lname[0]}</div>
+          <div><div style="font-weight:500;">${s.fname} ${s.lname}</div><div style="font-size:10px;color:var(--text-muted);">${s.email}</div></div>
+        </div>
+      </td>
+      <td>
+        <select class="role-select-inline" onchange="changeRole('${s.id}',this.value)">
+          <option ${s.role==='Cashier'?'selected':''}>Cashier</option>
+          <option ${s.role==='Manager'?'selected':''}>Manager</option>
+          <option ${s.role==='Admin'?'selected':''}>Admin</option>
+        </select>
+      </td>
+      <td style="font-family:'Geist Mono',monospace;color:var(--text-muted);">${s.pin}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${s.lastLogin}</td>
+      <td><span class="badge ${s.status==='active'?'badge-green':'badge-gray'}">${s.status==='active'?'Active':'Inactive'}</span></td>
+      <td style="text-align:right;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
+          <button class="icon-btn" onclick="toggleStatus('${s.id}')" title="Toggle status" style="color:var(--text-muted);">⊙</button>
+          ${s.id!=='S001'?`<button class="icon-btn" onclick="removeStaff('${s.id}')" title="Remove">🗑</button>`:'<div style="width:28px;"></div>'}
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function changeRole(id, role) { const s = staff.find(x=>x.id===id); if(s){s.role=role; showToast(s.fname+' role updated to '+role,'success');} }
+function toggleStatus(id) {
+  const s = staff.find(x=>x.id===id);
+  if (!s || s.id==='S001') return;
+  s.status = s.status==='active'?'inactive':'active';
+  renderStaff();
+  showToast(s.fname+' '+s.lname+' is now '+s.status);
+}
+function removeStaff(id) {
+  const s = staff.find(x=>x.id===id);
+  if (!s) return;
+  if (!confirm('Remove '+s.fname+' '+s.lname+' from the system?')) return;
+  staff = staff.filter(x=>x.id!==id);
+  renderStaff();
+  showToast(s.fname+' removed','error');
+}
+
+function openAddStaff() { document.getElementById('modal-staff').classList.add('open'); }
+function addStaff() {
+  const fname = document.getElementById('sf-fname').value.trim();
+  const lname = document.getElementById('sf-lname').value.trim();
+  if (!fname || !lname) { showToast('Name is required','error'); return; }
+  const colors = [{bg:'#dbeafe',txt:'#1e40af'},{bg:'#d1fae5',txt:'#065f46'},{bg:'#fef3c7',txt:'#92400e'},{bg:'#ede9fe',txt:'#4c1d95'}];
+  const c = colors[staff.length % colors.length];
+  staff.push({
+    id:'S'+String(staff.length+1).padStart(3,'0'),
+    fname, lname,
+    email: document.getElementById('sf-email').value,
+    role: document.getElementById('sf-role').value,
+    pin: '****', lastLogin:'Never', status:'active',
+    color:c.bg, textColor:c.txt
+  });
+  renderStaff();
+  closeModal('modal-staff');
+  showToast(fname+' added to staff ✓','success');
+}
+
+// ─── PERMISSIONS TABLE ───
+function renderPerms() {
+  document.getElementById('perms-tbody').innerHTML = PERMS.map(p => `
+    <tr>
+      <td style="padding:0.5rem 0.75rem;color:var(--text-muted);">${p.name}</td>
+      <td style="text-align:center;padding:0.5rem 0.75rem;">${p.admin?'<span style="color:var(--success);font-size:14px;">✓</span>':'<span style="color:var(--border);">—</span>'}</td>
+      <td style="text-align:center;padding:0.5rem 0.75rem;">${p.manager?'<span style="color:var(--success);font-size:14px;">✓</span>':'<span style="color:var(--border);">—</span>'}</td>
+      <td style="text-align:center;padding:0.5rem 0.75rem;">${p.cashier?'<span style="color:var(--success);font-size:14px;">✓</span>':'<span style="color:var(--border);">—</span>'}</td>
+    </tr>`).join('');
+}
+
+// ─── AUDIT LOG ───
+function renderAuditLog() {
+  document.getElementById('audit-log').innerHTML = AUDIT_EVENTS.map(e => `
+    <div class="log-item">
+      <div class="log-dot" style="background:${e.color};"></div>
+      <div class="log-body">
+        <div class="log-title">${e.title}</div>
+        <div class="log-sub">${e.sub}</div>
+      </div>
+      <div class="log-time">${e.time}</div>
+    </div>`).join('');
+}
+
+function confirmDanger(msg) {
+  if (confirm(msg)) showToast('Action completed','error');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target===o) closeModal(o.id); });
+});
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast'+(type?' '+type:'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// Init
+if (initializeAccessControl()) {
+  renderStaff();
+  renderPerms();
+  renderAuditLog();
+  loadSettingsFromBackend().catch((error) => {
+    showToast(error.message || 'Unable to load saved settings', 'warn');
+  });
+}
+
+(function () {
+  const sidebar = document.querySelector('.sidebar');
+  const toggle = document.getElementById('mobile-menu-toggle');
+  if (!sidebar || !toggle) {
+    return;
+  }
+
+  function closeMenu() {
+    sidebar.classList.remove('mobile-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', function (event) {
+    event.stopPropagation();
+    const open = sidebar.classList.toggle('mobile-open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  document.addEventListener('click', function (event) {
+    if (window.innerWidth > 980) {
+      return;
+    }
+    if (!sidebar.contains(event.target)) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980) {
+      closeMenu();
+    }
+  });
+})();
+</script>
+</body>
+</html>

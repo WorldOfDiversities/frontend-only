@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwiftPOS Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">⬡</div>
+      <div class="logo-text">SwiftPOS</div>
+      <span class="logo-ver mono">v2.0</span>
+      <button class="menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+
+    <div class="sidebar-body">
+      <div class="nav-group-label">Main</div>
+      <div class="nav-item active" data-roles="ADMIN,MANAGER,CASHIER" data-route="dashboard.html"><span class="ni">▦</span> Dashboard</div>
+      <div class="nav-item" data-roles="ADMIN,MANAGER,CASHIER" data-route="pos.html"><span class="ni">⊞</span> POS / Cashier</div>
+
+      <div class="nav-group-label">Management</div>
+      <div class="nav-item" data-roles="ADMIN,MANAGER" data-route="products.html"><span class="ni">◫</span> Products</div>
+      <div class="nav-item" data-roles="ADMIN,MANAGER" data-route="inventory.html"><span class="ni">⊟</span> Inventory <span class="nav-badge warn" id="inventory-nav-badge">0</span></div>
+      <div class="nav-item" data-roles="ADMIN,MANAGER,CASHIER" data-route="customers.html"><span class="ni">◯</span> Customers</div>
+
+      <div class="nav-group-label">Analytics</div>
+      <div class="nav-item" data-roles="ADMIN,MANAGER" data-route="reports.html"><span class="ni">▤</span> Reports</div>
+
+      <div class="nav-group-label">System</div>
+      <div class="nav-item" data-roles="ADMIN" data-route="settings.html"><span class="ni">⚙</span> Settings</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="user-avatar">US</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">User</div>
+          <div class="user-role" id="user-role">Role</div>
+        </div>
+        <button id="logout-btn" class="logout" title="Sign out">↩</button>
+      </div>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <h2>Dashboard</h2>
+      <p id="date-line">Today</p>
+    </div>
+    <div class="topbar-right">
+      <div class="live-indicator"><div class="live-dot"></div> Live</div>
+      <div class="topbar-divider"></div>
+      <button class="topbar-btn" id="back-home-btn" type="button">Home</button>
+      <button class="topbar-btn primary" id="export-btn" type="button" data-roles="ADMIN,MANAGER">Export</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="inner">
+      <section class="kpi-grid">
+        <article class="kpi" data-roles="ADMIN,MANAGER,CASHIER">
+          <div class="kpi-label">Today's Revenue</div>
+          <div class="kpi-value mono" id="kpi-revenue-value">GHc 0.00</div>
+          <div class="kpi-delta neutral" id="kpi-revenue-delta">Waiting for data</div>
+        </article>
+        <article class="kpi" data-roles="ADMIN,MANAGER,CASHIER">
+          <div class="kpi-label">Transactions</div>
+          <div class="kpi-value mono" id="kpi-transactions-value">0</div>
+          <div class="kpi-delta neutral" id="kpi-transactions-delta">Waiting for data</div>
+        </article>
+        <article class="kpi" data-roles="ADMIN,MANAGER">
+          <div class="kpi-label">Low Stock Items</div>
+          <div class="kpi-value mono warn" id="kpi-low-stock-value">0</div>
+          <div class="kpi-delta neutral" id="kpi-low-stock-delta">Waiting for data</div>
+        </article>
+        <article class="kpi" data-roles="ADMIN,MANAGER">
+          <div class="kpi-label">New Customers</div>
+          <div class="kpi-value mono" id="kpi-customers-value">0</div>
+          <div class="kpi-delta neutral" id="kpi-customers-delta">Waiting for data</div>
+        </article>
+      </section>
+
+      <section class="row-2">
+        <article class="card" data-roles="ADMIN,MANAGER,CASHIER">
+          <div class="card-header">
+            <div>
+              <h3>Sales Overview</h3>
+              <p>Weekly sales trend</p>
+            </div>
+          </div>
+          <div class="chart-wrap" id="weekly-chart"></div>
+        </article>
+
+        <article class="card" data-roles="ADMIN,MANAGER,CASHIER">
+          <div class="card-header">
+            <div>
+              <h3>Recent Activity</h3>
+              <p>Latest events</p>
+            </div>
+          </div>
+          <ul class="activity-list" id="activity-list">
+            <li><span>Loading activity...</span><strong class="mono">...</strong></li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="row-2 split">
+        <article class="card" data-roles="ADMIN,MANAGER,CASHIER">
+          <div class="card-header">
+            <div>
+              <h3>Recent Transactions</h3>
+              <p>Today's processed sales</p>
+            </div>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Txn ID</th>
+                  <th>Customer</th>
+                  <th>Payment</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recent-transactions-body">
+                <tr>
+                  <td class="mono" colspan="5">Loading transactions...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="right-stack">
+          <article class="card" data-roles="ADMIN,MANAGER">
+            <div class="card-header">
+              <div>
+                <h3>Stock Alerts</h3>
+                <p>Needs restocking</p>
+              </div>
+            </div>
+            <ul class="stock-list" id="stock-alerts-list">
+              <li><span>Loading stock alerts...</span><strong class="mono">...</strong></li>
+            </ul>
+          </article>
+
+          <article class="card" data-roles="ADMIN,MANAGER">
+            <div class="card-header">
+              <div>
+                <h3>Top Cashiers</h3>
+                <p>Today's performance</p>
+              </div>
+            </div>
+            <ul class="cashier-list" id="top-cashiers-list">
+              <li><span>Loading cashier performance...</span><strong class="mono">...</strong></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app-config.js"></script>
+  <script src="dashboard.js"></script>
+  <script>
+    (function () {
+      const sidebar = document.querySelector(".sidebar");
+      const toggle = document.getElementById("mobile-menu-toggle");
+      if (!sidebar || !toggle) {
+        return;
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove("mobile-open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+
+      toggle.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const open = sidebar.classList.toggle("mobile-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+
+      document.addEventListener("click", function (event) {
+        if (window.innerWidth > 780) {
+          return;
+        }
+        if (!sidebar.contains(event.target)) {
+          closeMenu();
+        }
+      });
+
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 780) {
+          closeMenu();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+:root {
+  --bg: #eef1f6;
+  --shell: #ffffff;
+  --panel-dark: #0f2858;
+  --panel-dark-soft: #0c224d;
+  --text-main: #1f2533;
+  --text-muted: #667086;
+  --field-bg: #ffffff;
+  --field-border: #d8dde8;
+  --primary: #102a57;
+  --success: #0b7a4b;
+  --danger: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Geist", sans-serif;
+  color: var(--text-main);
+  background: var(--bg);
+}
+
+input,
+select,
+button,
+textarea {
+  font-family: "Geist", sans-serif;
+}
+
+.mono {
+  font-family: "Geist Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.register-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.register-shell {
+  width: min(1020px, 100%);
+  min-height: 620px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 0.88fr 1.12fr;
+  background: var(--shell);
+  border: 1px solid #dde3ef;
+  box-shadow: 0 14px 36px rgba(15, 28, 52, 0.12);
+}
+
+.register-info {
+  background: linear-gradient(170deg, var(--panel-dark) 0%, var(--panel-dark-soft) 100%);
+  color: #e8eef9;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.register-info h1 {
+  font-family: "Instrument Serif", serif;
+  font-size: 42px;
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+.register-info p {
+  color: #b8c5de;
+  line-height: 1.45;
+}
+
+.role-cards {
+  margin-top: auto;
+  display: grid;
+  gap: 14px;
+}
+
+.role-card {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(218, 227, 246, 0.13);
+  background: rgba(9, 20, 44, 0.38);
+}
+
+.role-card-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: linear-gradient(145deg, #20498f, #285ec3);
+}
+
+.role-card h3 {
+  font-family: "Geist", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #f0f5ff;
+  margin-bottom: 3px;
+  line-height: 1.15;
+}
+
+.role-card p {
+  font-family: "Geist", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #a9b7d3;
+}
+
+.role-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8ea1c8;
+  border: 1px solid rgba(180, 197, 227, 0.25);
+  border-radius: 6px;
+  padding: 4px 7px;
+}
+
+.register-form-panel {
+  padding: 38px;
+}
+
+.register-form-panel h2 {
+  font-family: "Instrument Serif", serif;
+  font-size: 46px;
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-top: 8px;
+  margin-bottom: 22px;
+}
+
+.register-form {
+  display: grid;
+  gap: 14px;
+}
+
+.grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4b5262;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.required-mark {
+  color: #c62828;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  height: 46px;
+  border: 1px solid var(--field-border);
+  border-radius: 10px;
+  background: var(--field-bg);
+  color: var(--text-main);
+  font-size: 15px;
+  padding: 0 12px;
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: #9fb0d4;
+  box-shadow: 0 0 0 3px rgba(19, 42, 87, 0.08);
+}
+
+input.input-invalid,
+select.input-invalid {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.1);
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input[type="password"],
+.password-field input[type="text"] {
+  padding-right: 72px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: #4b5262;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.password-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: #4b5262;
+}
+
+.password-toggle .eye-closed {
+  display: none;
+}
+
+.password-toggle.is-visible .eye-open {
+  display: none;
+}
+
+.password-toggle.is-visible .eye-closed {
+  display: block;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid #9fb0d4;
+  outline-offset: 1px;
+}
+
+.field-error-tooltip {
+  display: block;
+  position: relative;
+  background: #fff2f2;
+  border: 1px solid #efc4c4;
+  color: #9f1f1f;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 10px;
+  margin: 6px 0 0;
+  line-height: 1.3;
+  max-width: min(100%, 34ch);
+  width: fit-content;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.field-error-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 14px;
+  width: 10px;
+  height: 10px;
+  background: #fff2f2;
+  border-left: 1px solid #efc4c4;
+  border-top: 1px solid #efc4c4;
+  transform: rotate(45deg);
+}
+
+.register-btn {
+  margin-top: 4px;
+  width: 100%;
+  height: 50px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status-text {
+  min-height: 20px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.status-text.error {
+  color: var(--danger);
+}
+
+.status-text.success {
+  color: var(--success);
+}
+
+.switch-link {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.switch-link a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (max-width: 920px) {
+  .register-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .register-info,
+  .register-form-panel {
+    padding: 28px 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .register-page {
+    padding: 12px;
+  }
+
+  .register-info,
+  .register-form-panel {
+    padding: 20px 14px;
+  }
+
+  .register-info h1,
+  .register-form-panel h2 {
+    font-size: 32px;
+  }
+
+  .role-card {
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .role-tag {
+    display: none;
+  }
+
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .field-error-tooltip {
+    max-width: 100%;
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+
+  .field-error-tooltip::before {
+    left: 10px;
+  }
+
+  .password-toggle {
+    width: 28px;
+    height: 26px;
+  }
+}
+
+@media (max-width: 380px) {
+  .register-info {
+    display: none;
+  }
+
+  .register-shell {
+    min-height: auto;
+  }
+
+  .register-form-panel h2 {
+    font-size: 28px;
+  }
+}

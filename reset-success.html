@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Reset Successful - SwiftPOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+  <style>
+    .success-box {
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    .success-title {
+      font-size: 1.75rem;
+      font-family: 'Instrument Serif', serif;
+      margin-bottom: 0.5rem;
+      color: #059669;
+    }
+    .success-message {
+      color: #6b7280;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    .countdown {
+      font-size: 0.875rem;
+      color: #9ca3af;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-shell">
+      <aside class="brand-panel" aria-label="System information">
+        <div class="brand-head">
+          <span class="brand-icon" aria-hidden="true"></span>
+          <h1 class="brand-name">SwiftPOS</h1>
+          <span class="brand-version mono">v2.0</span>
+        </div>
+        <p class="brand-copy">
+          Your password has been reset successfully. You can now log in with your new password.
+        </p>
+      </aside>
+
+      <section class="form-panel">
+        <div class="success-box">
+          <div class="success-icon">✓</div>
+          <h2 class="success-title">Password Reset Complete!</h2>
+          <p class="success-message">
+            Your password has been updated successfully.<br>
+            You can now log in with your new password.
+          </p>
+          <a href="login.html" class="login-btn" style="display: inline-block; margin-top: 1.5rem; text-decoration: none;">Go to Login</a>
+          <div class="countdown">
+            Redirecting to login in <span id="countdown">5</span> seconds...
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    let countdown = 5;
+    const countdownEl = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+      countdown--;
+      countdownEl.textContent = countdown;
+
+      if (countdown <= 0) {
+        clearInterval(timer);
+        window.location.href = 'login.html';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

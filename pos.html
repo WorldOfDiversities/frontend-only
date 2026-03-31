@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SwiftPOS — POS Cashier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0f1f3d;
+  --navy-light:#1a3260;
+  --navy-faint:#eef1f8;
+  --navy-muted:#d0d8ea;
+  --accent:#1e40af;
+  --accent-bright:#4e80ee;
+  --text:#111827;
+  --text-muted:#6b7280;
+  --text-light:#9ca3af;
+  --border:#e5e7eb;
+  --surface:#ffffff;
+  --bg:#f4f6fb;
+  --success:#059669;
+  --success-bg:#d1fae5;
+  --warn:#d97706;
+  --warn-bg:#fef3c7;
+  --danger:#dc2626;
+  --danger-bg:#fee2e2;
+  --sidebar-w:228px;
+  --topbar-h:64px;
+  --radius:8px;
+  --radius-lg:14px;
+}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;height:100vh;overflow:hidden;}
+h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
+
+/* ======== SIDEBAR ======== */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;z-index:200;}
+.sidebar-logo{padding:0 1.5rem;height:var(--topbar-h);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.logo-mark{width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.logo-text{font-family:'Instrument Serif',serif;font-size:18px;color:#fff;}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.25);font-family:'Geist Mono',monospace;margin-left:2px;}
+.menu-toggle{display:none;margin-left:auto;width:32px;height:32px;border:1px solid rgba(255,255,255,0.2);border-radius:8px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.menu-toggle span{width:15px;height:2px;border-radius:2px;background:#fff;transition:transform 180ms ease,opacity 180ms ease;}
+.sidebar-body{flex:1;padding:1rem 0;overflow-y:auto;}
+.sidebar-body::-webkit-scrollbar{display:none;}
+.nav-group-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0.85rem 1.5rem 0.35rem;font-family:'Geist Mono',monospace;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:0.6rem 1.5rem;color:rgba(255,255,255,0.5);cursor:pointer;transition:all 0.15s;font-size:13px;border-left:2px solid transparent;}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05);}
+.nav-item.active{color:#fff;background:rgba(255,255,255,0.09);border-left-color:#fff;}
+.nav-item .ni{width:18px;text-align:center;font-size:13px;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:9px;font-weight:600;padding:2px 6px;border-radius:10px;font-family:'Geist Mono',monospace;}
+.sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.user-info{flex:1;min-width:0;}
+.user-name{font-size:12px;font-weight:500;color:#fff;}
+.user-role{font-size:10px;color:rgba(255,255,255,0.35);}
+.logout{background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;}
+.logout:hover{color:rgba(255,255,255,0.8);}
+
+/* ======== TOPBAR ======== */
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:1rem;}
+.topbar-left h2{font-size:19px;}
+.topbar-divider{width:1px;height:24px;background:var(--border);}
+.session-info{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+.session-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.topbar-btn{padding:0.45rem 0.9rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:5px;}
+.topbar-btn:hover{border-color:var(--navy);color:var(--navy);}
+.txn-counter{font-family:'Geist Mono',monospace;font-size:12px;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);padding:0.4rem 0.8rem;border-radius:var(--radius);}
+
+/* ======== LAYOUT ======== */
+.main{margin-left:var(--sidebar-w);padding-top:var(--topbar-h);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.pos-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px;overflow:hidden;}
+
+/* ======== LEFT: PRODUCTS ======== */
+.products-panel{display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;}
+.products-toolbar{padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);display:flex;gap:10px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+.search-wrap{flex:1;position:relative;}
+.search-wrap input{width:100%;padding:0.65rem 1rem 0.65rem 2.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s;background:var(--bg);}
+.search-wrap input:focus{border-color:var(--navy);background:var(--surface);}
+.search-icon{position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;pointer-events:none;}
+.cat-tabs{display:flex;gap:4px;flex-shrink:0;overflow-x:auto;max-width:100%;padding-bottom:2px;}
+.cat-tab{padding:0.5rem 0.85rem;border-radius:var(--radius);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all 0.15s;white-space:nowrap;}
+.cat-tab:hover{border-color:var(--navy);color:var(--navy);}
+.cat-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+.products-grid{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;align-content:start;}
+.products-grid::-webkit-scrollbar{width:4px;}
+.products-grid::-webkit-scrollbar-track{background:transparent;}
+.products-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.product-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 0.85rem;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;user-select:none;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+.product-card:hover{border-color:var(--navy);box-shadow:0 3px 16px rgba(15,31,61,0.1);transform:translateY(-1px);}
+.product-card:active{transform:scale(0.97);}
+.product-card.out-of-stock{opacity:0.45;cursor:not-allowed;}
+.product-card.out-of-stock:hover{transform:none;box-shadow:none;border-color:var(--border);}
+.p-emoji{font-size:30px;margin-bottom:8px;display:block;}
+.p-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;line-height:1.3;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px;}
+.p-price{font-size:13px;color:var(--navy);font-family:'Geist Mono',monospace;font-weight:500;margin-bottom:4px;}
+.p-stock{font-size:10px;color:var(--text-light);}
+.p-stock.low{color:var(--warn);}
+.p-stock.out{color:var(--danger);}
+.added-flash{position:absolute;inset:0;background:rgba(15,31,61,0.08);border-radius:var(--radius-lg);opacity:0;pointer-events:none;transition:opacity 0.2s;}
+
+/* ======== RIGHT: CART ======== */
+.cart-panel{display:flex;flex-direction:column;background:var(--surface);overflow:hidden;min-height:0;}
+
+.cart-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cart-header-left{display:flex;align-items:center;gap:10px;}
+.cart-title{font-size:15px;font-weight:500;}
+.cart-count{background:var(--navy);color:#fff;font-size:10px;font-family:'Geist Mono',monospace;padding:2px 7px;border-radius:10px;}
+.cart-clear{background:none;border:1px solid var(--border);border-radius:var(--radius);color:var(--text-muted);font-size:12px;cursor:pointer;padding:0.35rem 0.7rem;font-family:'Geist',sans-serif;transition:all 0.15s;}
+.cart-clear:hover{border-color:var(--danger);color:var(--danger);}
+
+/* customer selector */
+.customer-bar{padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--bg);}
+.customer-bar select{flex:1;padding:0.45rem 0.7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Geist',sans-serif;background:var(--surface);outline:none;color:var(--text);}
+.customer-bar select:focus{border-color:var(--navy);}
+.walk-in-badge{font-size:10px;color:var(--text-muted);white-space:nowrap;}
+
+/* cart items */
+.cart-items{flex:1;min-height:0;overflow-y:auto;padding:0.75rem 1.25rem;}
+.cart-items::-webkit-scrollbar{width:3px;}
+.cart-items::-webkit-scrollbar-thumb{background:var(--border);}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-light);gap:8px;padding:2rem;}
+.cart-empty-icon{font-size:40px;opacity:0.4;}
+.cart-empty-text{font-size:13px;}
+.cart-empty-hint{font-size:11px;color:var(--text-light);}
+
+.cart-item{display:flex;align-items:center;gap:10px;padding:0.65rem 0;border-bottom:1px solid var(--border);animation:slideIn 0.2s ease both;}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
+.cart-item:last-child{border-bottom:none;}
+.ci-emoji{font-size:18px;flex-shrink:0;width:28px;text-align:center;}
+.ci-info{flex:1;min-width:0;}
+.ci-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ci-unit{font-size:10px;color:var(--text-muted);font-family:'Geist Mono',monospace;}
+.ci-qty{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.qty-btn{width:22px;height:22px;border:1px solid var(--border);border-radius:5px;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all 0.12s;line-height:1;}
+.qty-btn:hover{border-color:var(--navy);color:var(--navy);background:var(--navy-faint);}
+.qty-num{font-size:13px;font-family:'Geist Mono',monospace;width:22px;text-align:center;font-weight:500;}
+.ci-total{font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;min-width:68px;text-align:right;flex-shrink:0;}
+.ci-del{background:none;border:none;color:var(--text-light);cursor:pointer;font-size:13px;padding:3px;transition:color 0.12s;flex-shrink:0;line-height:1;}
+.ci-del:hover{color:var(--danger);}
+
+/* totals */
+.cart-totals{padding:0.9rem 1.25rem;border-top:1px solid var(--border);flex-shrink:0;}
+.total-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+.total-row span:last-child{font-family:'Geist Mono',monospace;color:var(--text);}
+.total-row.discount span:last-child{color:var(--success);}
+.total-divider{height:1px;background:var(--border);margin:8px 0;}
+.total-row.grand{font-size:16px;font-weight:600;color:var(--text);margin-bottom:0;}
+.total-row.grand span:last-child{font-family:'Geist Mono',monospace;font-size:17px;}
+
+/* discount input */
+.discount-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.discount-row label{font-size:12px;color:var(--text-muted);flex-shrink:0;}
+.discount-input{flex:1;padding:0.35rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Geist Mono',monospace;outline:none;text-align:right;}
+.discount-input:focus{border-color:var(--navy);}
+.discount-type{padding:0.35rem 0.5rem;border:1px solid var(--border);border-radius:var(--radius);font-size:11px;font-family:'Geist',sans-serif;background:var(--surface);outline:none;cursor:pointer;}
+
+/* payment method */
+.payment-section{padding:0.75rem 1rem;border-top:1px solid var(--border);flex-shrink:0;max-height:38vh;overflow-y:auto;overflow-x:hidden;}
+.payment-section::-webkit-scrollbar{width:4px;}
+.payment-section::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.payment-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;font-weight:500;}
+.payment-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;}
+.pay-method{padding:0.5rem 0.4rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:10px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s;text-align:center;background:var(--bg);}
+.pay-method:hover{border-color:var(--navy-muted);}
+.pay-method.active{border-color:var(--navy);background:var(--navy-faint);color:var(--navy);}
+.pay-method-icon{display:block;font-size:14px;margin-bottom:2px;}
+
+/* cash tendered */
+.cash-tender{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.cash-tender label{font-size:12px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;}
+.cash-tender input{flex:1;padding:0.5rem 0.75rem;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:'Geist Mono',monospace;outline:none;}
+.cash-tender input:focus{border-color:var(--navy);}
+.change-display{display:block;flex:1 1 100%;font-size:12px;color:var(--success);font-family:'Geist Mono',monospace;font-weight:500;white-space:normal;text-align:right;line-height:1.35;}
+
+/* checkout btn */
+.checkout-btn{width:100%;padding:0.78rem;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.2s;letter-spacing:0.01em;position:relative;overflow:hidden;}
+.checkout-btn:hover{background:var(--navy-light);}
+.checkout-btn:active{transform:scale(0.99);}
+.checkout-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* ======== MODAL ======== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:500;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:420px;position:relative;animation:modalIn 0.25s ease both;overflow:hidden;}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+.modal-top{padding:1.5rem 1.5rem 0;}
+.modal-top h3{font-size:22px;margin-bottom:4px;}
+.modal-top p{font-size:13px;color:var(--text-muted);}
+.modal-close{position:absolute;top:1rem;right:1rem;background:var(--bg);border:1px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text-muted);transition:all 0.15s;}
+.modal-close:hover{background:var(--border);color:var(--text);}
+.receipt-body{padding:1.25rem 1.5rem;}
+.receipt-store{text-align:center;padding-bottom:1rem;border-bottom:1px dashed var(--border);margin-bottom:1rem;}
+.receipt-store-name{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:4px;}
+.receipt-meta{font-size:11px;color:var(--text-muted);font-family:'Geist Mono',monospace;line-height:1.8;}
+.receipt-items{margin-bottom:1rem;}
+.receipt-line{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--bg);}
+.receipt-line:last-child{border-bottom:none;}
+.receipt-line span:last-child{font-family:'Geist Mono',monospace;}
+.receipt-totals{border-top:1px dashed var(--border);padding-top:0.75rem;}
+.rt-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;color:var(--text-muted);}
+.rt-row span:last-child{font-family:'Geist Mono',monospace;color:var(--text);}
+.rt-row.grand{font-size:15px;font-weight:600;color:var(--text);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.receipt-footer{text-align:center;padding:0.75rem 1.5rem 1.5rem;font-size:11px;color:var(--text-light);}
+.modal-actions{display:flex;gap:8px;padding:0 1.5rem 1.5rem;}
+.btn-outline{flex:1;padding:0.7rem;border:1px solid var(--border);border-radius:var(--radius);background:none;font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;color:var(--text);transition:all 0.15s;}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+.btn-navy-sm{flex:1;padding:0.7rem;border:none;border-radius:var(--radius);background:var(--navy);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:background 0.15s;}
+.btn-navy-sm:hover{background:var(--navy-light);}
+
+/* success modal */
+.success-modal{text-align:center;padding:2.5rem 2rem;}
+.success-ring{width:72px;height:72px;border-radius:50%;background:var(--success-bg);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.25rem;}
+.success-modal h3{font-size:26px;margin-bottom:0.5rem;}
+.success-modal p{font-size:13px;color:var(--text-muted);margin-bottom:1.5rem;}
+.success-amount{font-family:'Instrument Serif',serif;font-size:36px;color:var(--navy);margin-bottom:0.25rem;}
+.success-change{font-size:14px;color:var(--success);font-family:'Geist Mono',monospace;}
+.btn-new-sale{width:100%;padding:0.875rem;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:background 0.15s;}
+.btn-new-sale:hover{background:var(--navy-light);}
+
+/* toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--navy);color:#fff;padding:0.65rem 1.1rem;border-radius:var(--radius);font-size:12px;z-index:999;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+@media (max-width: 1200px) {
+  .pos-body { grid-template-columns: minmax(0, 1fr) 315px; }
+  .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  body { overflow: auto; }
+  .sidebar { position: static; width: 100%; }
+  .menu-toggle { display: inline-flex; }
+  .sidebar-body {
+    display: block;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 0.75rem;
+    transition: max-height 220ms ease, opacity 180ms ease, padding 180ms ease;
+  }
+  .sidebar.mobile-open .sidebar-body { max-height: 520px; opacity: 1; padding: 0.6rem 0.75rem 0.75rem; }
+  .nav-group-label { display: block; padding: 0.65rem 0.2rem 0.3rem; }
+  .nav-item {
+    border-left: 0;
+    border-radius: var(--radius);
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 4px;
+  }
+  .nav-item.active { border-left: 0; }
+  .sidebar-footer {
+    display: block;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 0.75rem;
+    border-top: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: max-height 220ms ease, opacity 180ms ease, padding 180ms ease;
+  }
+  .sidebar.mobile-open .sidebar-footer { max-height: 92px; opacity: 1; padding: 0.6rem 0.75rem; }
+  .sidebar-footer .user-row { justify-content: flex-end; }
+  .sidebar.mobile-open .menu-toggle span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .sidebar.mobile-open .menu-toggle span:nth-child(2) { opacity: 0; }
+  .sidebar.mobile-open .menu-toggle span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .topbar,
+  .main {
+    margin-left: 0;
+    left: 0;
+    position: static;
+  }
+
+  .topbar {
+    height: auto;
+    padding: 0.85rem 1rem;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .topbar-left,
+  .topbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .main { height: auto; min-height: 100vh; }
+  .pos-body { grid-template-columns: 1fr; overflow: visible; }
+  .products-panel { min-height: 58vh; }
+  .cart-panel { border-top: 1px solid var(--border); min-height: 42vh; }
+}
+
+@media (max-width: 640px) {
+  .topbar-left h2 {
+    font-size: 18px;
+  }
+
+  .topbar-divider,
+  .session-info {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 6px;
+  }
+
+  .topbar-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .products-toolbar {
+    padding: 0.85rem 1rem;
+  }
+
+  .products-grid {
+    padding: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  }
+
+  .payment-methods {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">⬡</div>
+    <div class="logo-text">SwiftPOS</div>
+    <span class="logo-ver">v2.0</span>
+    <button class="menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <div class="sidebar-body">
+    <div class="nav-group-label">Main</div>
+    <div class="nav-item nav-item-dashboard" data-route="dashboard.html"><span class="ni">▦</span> Dashboard</div>
+    <div class="nav-item active"><span class="ni">⊞</span> POS / Cashier</div>
+    <div class="nav-group-label">Management</div>
+    <div class="nav-item" data-route="products.html"><span class="ni">◫</span> Products</div>
+    <div class="nav-item" data-route="inventory.html"><span class="ni">⊟</span> Inventory <span class="nav-badge">6</span></div>
+    <div class="nav-item" data-route="customers.html"><span class="ni">◯</span> Customers</div>
+    <div class="nav-group-label">Analytics</div>
+    <div class="nav-item" data-route="reports.html"><span class="ni">▤</span> Reports</div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">CS</div>
+      <div class="user-info">
+        <div class="user-name">Ama Darko</div>
+        <div class="user-role">Cashier</div>
+      </div>
+      <button class="logout">↩</button>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-left">
+    <h2>POS Terminal</h2>
+    <div class="topbar-divider"></div>
+    <div class="session-info"><div class="session-dot"></div> Session active · <span id="session-time">00:00:00</span></div>
+    <div class="topbar-divider"></div>
+    <div class="txn-counter">TXN-<span id="txn-id">00413</span></div>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-btn" onclick="openBarcodeScanner()">⊡ Barcode Scan</button>
+    <button class="topbar-btn" onclick="showToast('Shift summary opened')">⊟ End Shift</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="pos-body">
+
+    <!-- LEFT: PRODUCTS -->
+    <div class="products-panel">
+      <div class="products-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⊙</span>
+          <input type="text" id="search-input" placeholder="Search product name or scan barcode…" oninput="filterProducts()"/>
+        </div>
+        <div class="cat-tabs">
+          <div class="cat-tab active" onclick="setCategory(this,'All')">All</div>
+          <div class="cat-tab" onclick="setCategory(this,'Beverages')">Beverages</div>
+          <div class="cat-tab" onclick="setCategory(this,'Food')">Food</div>
+          <div class="cat-tab" onclick="setCategory(this,'Household')">Household</div>
+          <div class="cat-tab" onclick="setCategory(this,'Personal Care')">Care</div>
+        </div>
+      </div>
+      <div class="products-grid" id="products-grid"></div>
+    </div>
+
+    <!-- RIGHT: CART -->
+    <div class="cart-panel">
+
+      <!-- Cart header -->
+      <div class="cart-header">
+        <div class="cart-header-left">
+          <div class="cart-title">Cart</div>
+          <div class="cart-count" id="cart-count">0</div>
+        </div>
+        <button class="cart-clear" onclick="clearCart()">Clear all</button>
+      </div>
+
+      <!-- Customer -->
+      <div class="customer-bar">
+        <span style="font-size:11px;color:var(--text-muted);flex-shrink:0;">Customer</span>
+        <select id="customer-select">
+          <option value="">Walk-in customer</option>
+          <option value="C0041">Kwame Mensah (C0041)</option>
+          <option value="C0038">Abena Owusu (C0038)</option>
+          <option value="C0031">Emmanuel Asante (C0031)</option>
+          <option value="C0028">Efua Darko (C0028)</option>
+        </select>
+        <span class="walk-in-badge" id="loyalty-info"></span>
+      </div>
+
+      <!-- Items -->
+      <div class="cart-items" id="cart-items">
+        <div class="cart-empty" id="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <div class="cart-empty-text">Your cart is empty</div>
+          <div class="cart-empty-hint">Click a product to add it here</div>
+        </div>
+      </div>
+
+      <!-- Totals -->
+      <div class="cart-totals">
+        <div class="total-row"><span>Subtotal</span><span id="subtotal-val">GH₵ 0.00</span></div>
+        <div class="total-row"><span>Tax (5%)</span><span id="tax-val">GH₵ 0.00</span></div>
+        <div class="discount-row">
+          <label>Discount</label>
+          <input class="discount-input" type="number" id="discount-val" min="0" placeholder="0" oninput="recalc()"/>
+          <select class="discount-type" id="discount-type" onchange="recalc()">
+            <option value="pct">%</option>
+            <option value="flat">GH₵</option>
+          </select>
+          <span style="font-size:12px;color:var(--success);font-family:'Geist Mono',monospace;min-width:60px;text-align:right;" id="discount-display">—</span>
+        </div>
+        <div class="total-divider"></div>
+        <div class="total-row grand"><span>Total</span><span id="total-val">GH₵ 0.00</span></div>
+      </div>
+
+      <!-- Payment -->
+      <div class="payment-section">
+        <div class="payment-label">Payment Method</div>
+        <div class="payment-methods">
+          <div class="pay-method active" onclick="setPayment(this,'Cash')"><span class="pay-method-icon">💵</span>Cash</div>
+          <div class="pay-method" onclick="setPayment(this,'MoMo')"><span class="pay-method-icon">📱</span>Mobile Money</div>
+          <div class="pay-method" onclick="setPayment(this,'Card')"><span class="pay-method-icon">💳</span>Card</div>
+          <div class="pay-method" onclick="setPayment(this,'Split')"><span class="pay-method-icon">⇌</span>Split</div>
+          <div class="pay-method" onclick="setPayment(this,'Credit')"><span class="pay-method-icon">📋</span>Credit</div>
+          <div class="pay-method" onclick="setPayment(this,'Voucher')"><span class="pay-method-icon">🏷</span>Voucher</div>
+        </div>
+        <div class="cash-tender" id="cash-tender-row">
+          <label>Tendered</label>
+          <input type="number" id="tendered-input" placeholder="0.00" oninput="calcChange()" min="0"/>
+          <span class="change-display" id="change-display">Change: GH₵ 0.00</span>
+        </div>
+        <button class="checkout-btn" id="checkout-btn" onclick="openCheckout()" disabled>
+          Proceed to Checkout →
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="modal-receipt">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-receipt')">✕</button>
+    <div class="modal-top">
+      <h3>Confirm Sale</h3>
+      <p>Review the receipt before processing payment</p>
+    </div>
+    <div class="receipt-body">
+      <div class="receipt-store">
+        <div class="receipt-store-name">SwiftPOS Store</div>
+        <div class="receipt-meta">
+          <div id="r-txn">TXN-00413</div>
+          <div id="r-date"></div>
+          <div id="r-cashier">Cashier: Ama Darko</div>
+          <div id="r-customer">Customer: Walk-in</div>
+          <div id="r-payment">Payment: Cash</div>
+        </div>
+      </div>
+      <div class="receipt-items" id="r-items"></div>
+      <div class="receipt-totals">
+        <div class="rt-row"><span>Subtotal</span><span id="r-sub"></span></div>
+        <div class="rt-row"><span>Tax (5%)</span><span id="r-tax"></span></div>
+        <div class="rt-row"><span>Discount</span><span id="r-disc">—</span></div>
+        <div class="rt-row grand"><span>Total</span><span id="r-total"></span></div>
+      </div>
+    </div>
+    <div class="receipt-footer">Thank you for shopping with us!</div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeModal('modal-receipt')">Cancel</button>
+      <button class="btn-navy-sm" onclick="confirmSale()">Confirm &amp; Complete →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="modal-success">
+  <div class="modal">
+    <div class="success-modal">
+      <div class="success-ring">✓</div>
+      <h3>Sale Complete!</h3>
+      <p>Transaction processed successfully</p>
+      <div class="success-amount" id="s-total">GH₵ 0.00</div>
+      <div class="success-change" id="s-change"></div>
+      <br/>
+      <button class="btn-new-sale" onclick="newSale()">+ Start New Sale</button>
+    </div>
+  </div>
+</div>
+
+<!-- BARCODE SCANNER MODAL -->
+<div class="modal-overlay" id="modal-barcode">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBarcodeScanner()">✕</button>
+    <div class="modal-top">
+      <h3>Scan Barcode</h3>
+      <p>Scan or enter a product barcode</p>
+    </div>
+    <div class="receipt-body">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500;">Barcode</label>
+        <input type="text" id="barcode-input" placeholder="Scan or type barcode…" style="width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 14px; font-family: 'Geist Mono', monospace; outline: none;" autofocus/>
+      </div>
+      <div id="barcode-result" style="display: none; padding: 1rem; background: var(--bg); border-radius: var(--radius); margin-bottom: 1rem;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 28px;" id="result-emoji"></div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px;" id="result-name"></div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 3px;">
+              SKU: <span style="font-family: 'Geist Mono', monospace; color: var(--text);" id="result-sku"></span>
+            </div>
+            <div style="font-size: 13px; color: var(--navy); font-weight: 500; font-family: 'Geist Mono', monospace;" id="result-price"></div>
+          </div>
+        </div>
+      </div>
+      <div id="barcode-message" style="text-align: center; padding: 1rem; color: var(--text-light); font-size: 12px; display: none;">
+        <div style="margin-bottom: 0.5rem;">No product found</div>
+        <div style="font-size: 11px;">Try scanning again or enter a valid barcode</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeBarcodeScanner()">Cancel</button>
+      <button class="btn-navy-sm" id="add-scanned-btn" style="display: none;" onclick="addScannedProduct()">Add to Cart →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT CONFIRMATION MODAL (replaces window.confirm) -->
+<div class="modal-overlay" id="modal-payment-confirm">
+  <div class="modal">
+    <div class="modal-top">
+      <h3>Complete Payment</h3>
+    </div>
+    <div class="receipt-body" style="padding: 1.5rem;">
+      <p style="margin-bottom: 1rem; color: var(--text-muted); line-height: 1.6;">
+        A Paystack payment page has opened in a new tab. Please complete the MoMo payment there.
+      </p>
+      <p style="margin-bottom: 1.5rem; font-weight: 500; color: var(--text);">
+        Click <strong>OK</strong> once you've completed payment successfully.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" id="btn-payment-cancel">Cancel Payment</button>
+      <button class="btn-navy-sm" id="btn-payment-ok">✓ Payment Complete</button>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFICATION STATUS MODAL (replaces window.confirm for pending/failed status) -->
+<div class="modal-overlay" id="modal-verify-status">
+  <div class="modal">
+    <div class="modal-top">
+      <h3>Payment Verification</h3>
+    </div>
+    <div class="receipt-body" style="padding: 1.5rem;">
+      <p style="margin-bottom: 1rem; color: var(--warn); font-weight: 500;" id="verify-status-text">
+        Payment status: pending
+      </p>
+      <p style="margin-bottom: 1.5rem; color: var(--text-muted); line-height: 1.6;">
+        If you have already completed payment on the Paystack page, you can click <strong>OK to proceed</strong>. The system will record your sale with the payment reference for manual verification if needed.
+      </p>
+      <p style="margin-bottom: 1rem; font-size: 12px; color: var(--text-light);">
+        Alternatively, click <strong>Cancel</strong> to try the payment process again in a few seconds.
+      </p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-outline" id="btn-verify-cancel">Cancel & Retry</button>
+      <button class="btn-navy-sm" id="btn-verify-ok">✓ Proceed with Pending Status</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app-config.js"></script>
+<script>
+const { API_BASE_URL, ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, USER_ROLE_KEY, USER_NAME_KEY } = window.POS_CONFIG;
+
+let PRODUCTS = [];
+let CUSTOMERS = [];
+let cart = {};
+let currentCat = 'All';
+let selectedPayment = 'Cash';
+let txnNum = 413;
+let currentUser = { name: '', role: '' };
+
+// ===== AUTH & API HELPERS =====
+
+async function apiCall(method, endpoint, body = null) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  
+  if (!token) {
+    showToast('Not authenticated - redirecting to login');
+    clearAuthAndRedirectToLogin();
+    return null;
+  }
+
+  const options = {
+    method,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  };
+  if (body) options.body = JSON.stringify(body);
+
+  try {
+    const resp = await fetch(url, options);
+    if (resp.status === 401) {
+      console.error(`Unauthorized (401) accessing ${endpoint} - token may be expired`);
+      showToast('Session expired - please login again');
+      clearAuthAndRedirectToLogin();
+      return null;
+    }
+    if (resp.status === 403) {
+      const errorText = await resp.text();
+      console.error(`Forbidden (403) accessing ${endpoint}:`, errorText);
+      showToast('You do not have permission to access this resource');
+      return null;
+    }
+    if (!resp.ok) {
+      const errorText = await resp.text();
+      let detail = '';
+      let fieldErrors = {};
+      try {
+        const parsed = JSON.parse(errorText);
+        detail = parsed.detail || '';
+        // Extract field-specific validation errors
+        if (parsed.payment_reference) {
+          fieldErrors.payment_reference = Array.isArray(parsed.payment_reference) 
+            ? parsed.payment_reference[0] 
+            : parsed.payment_reference;
+        }
+      } catch (_) {
+        detail = '';
+      }
+      console.error(`API Error ${resp.status} on ${method} ${endpoint}:`, errorText);
+      const errorMsg = fieldErrors.payment_reference 
+        ? `Payment Error: ${fieldErrors.payment_reference}`
+        : (detail ? `Error ${resp.status}: ${detail}` : `Error ${resp.status}: ${resp.statusText}`);
+      showToast(errorMsg);
+      return null;
+    }
+    const data = await resp.json();
+    return data;
+  } catch (e) {
+    console.error('Network error:', e);
+    showToast(`Network error: ${e.message}`);
+    return null;
+  }
+}
+
+function clearAuthAndRedirectToLogin() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem(USER_ROLE_KEY);
+  localStorage.removeItem(USER_NAME_KEY);
+  window.location.href = 'login.html';
+}
+
+// ===== NAVIGATION =====
+function initNavigation() {
+  document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
+    node.addEventListener('click', () => {
+      const route = node.getAttribute('data-route');
+      if (route) window.location.href = route;
+    });
+    node.style.cursor = 'pointer';
+  });
+
+  // Logout button
+  const logoutBtn = document.querySelector('.logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      clearAuthAndRedirectToLogin();
+    });
+  }
+}
+
+// ===== USER & DATA INIT =====
+function initUserInfo() {
+  const userName = localStorage.getItem(USER_NAME_KEY) || 'User';
+  const userRole = localStorage.getItem(USER_ROLE_KEY) || 'CASHIER';
+  currentUser = { name: userName, role: userRole };
+
+  document.querySelector('.user-avatar').textContent = userName.substring(0, 2).toUpperCase();
+  document.querySelector('.user-name').textContent = userName;
+  document.querySelector('.user-role').textContent = userRole.charAt(0) + userRole.substring(1).toLowerCase();
+}
+
+// Emoji map for products
+const emojiMap = {
+  'Beverages': '🧃',
+  'Food': '🍱',
+  'Household': '🧹',
+  'Personal Care': '🧴',
+  'Other': '📦',
+};
+
+function getEmojiForCategory(catName) {
+  if (!catName) return '📦';
+  for (const [key, emoji] of Object.entries(emojiMap)) {
+    if (catName.toLowerCase().includes(key.toLowerCase())) {
+      return emoji;
+    }
+  }
+  return '📦';
+}
+
+function toListPayload(data) {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data.results)) {
+    return data.results;
+  }
+  return null;
+}
+
+async function loadProducts() {
+  showToast('Loading products...');
+  const data = await apiCall('GET', '/products/items/');
+  console.log('[loadProducts] API call completed, response:', data);
+  if (!data) {
+    console.error('Products API call returned null/empty');
+    showToast('Failed to load products - check console for details');
+    return;
+  }
+
+  const productList = toListPayload(data);
+  if (!productList) {
+    console.error('API response is not a list payload:', data);
+    showToast('Invalid API response - check console');
+    return;
+  }
+
+  PRODUCTS = productList.map(p => {
+    const catName = p.category_name || 'Other';
+    return {
+      id: String(p.id),
+      name: p.name,
+      cat: catName,
+      price: parseFloat(p.price),
+      stock: Number(p.quantity || 0),
+      emoji: getEmojiForCategory(catName),
+    };
+  });
+
+  if (PRODUCTS.length === 0) {
+    console.warn('No products returned from API');
+    showToast('No products available');
+  } else {
+    renderProducts();
+    showToast(`✓ Loaded ${PRODUCTS.length} products`);
+  }
+}
+
+async function loadCustomers() {
+  const data = await apiCall('GET', '/customers/');
+  console.log('[loadCustomers] API call completed, response:', data);
+  if (!data) {
+    console.warn('No customers found or API error');
+    return;
+  }
+
+  const customerList = toListPayload(data);
+  if (!customerList) {
+    console.warn('Customer response is not a list payload', data);
+    return;
+  }
+
+  CUSTOMERS = customerList.map(c => ({
+    id: c.id || c.customer_code,
+    name: c.name,
+    email: c.email || '',
+    phone: c.phone_number || '',
+    loyaltyPoints: c.loyalty_points || 0,
+  }));
+
+  // Update customer select
+  const select = document.getElementById('customer-select');
+  const newOptions = CUSTOMERS.map(c => 
+    `<option value="${c.id}">${c.name}</option>`
+  ).join('');
+  select.innerHTML = '<option value="">Walk-in customer</option>' + newOptions;
+  
+  showToast(`Loaded ${CUSTOMERS.length} customers`);
+}
+
+async function initData() {
+  console.log('[initData] Starting data loads...');
+  await loadProducts();
+  console.log('[initData] Products loaded, loading customers...');
+  await loadCustomers();
+  console.log('[initData] All data loads complete');
+}
+
+// Session timer
+let sessionSec = 0;
+setInterval(() => {
+  sessionSec++;
+  const h = String(Math.floor(sessionSec/3600)).padStart(2,'0');
+  const m = String(Math.floor((sessionSec%3600)/60)).padStart(2,'0');
+  const s = String(sessionSec%60).padStart(2,'0');
+  document.getElementById('session-time').textContent = `${h}:${m}:${s}`;
+}, 1000);
+
+// Loyalty points display
+document.getElementById('customer-select').addEventListener('change', function() {
+  const customerId = this.value;
+  let loyaltyStr = '';
+  if (customerId) {
+    const customer = CUSTOMERS.find(c => c.id == customerId);
+    if (customer && customer.loyaltyPoints > 0) {
+      loyaltyStr = `★ ${customer.loyaltyPoints.toLocaleString()} pts`;
+    }
+  }
+  document.getElementById('loyalty-info').textContent = loyaltyStr;
+});
+
+function renderProducts() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const grid = document.getElementById('products-grid');
+  const filtered = PRODUCTS.filter(p => {
+    const matchQ = p.name.toLowerCase().includes(q);
+    const matchC = currentCat === 'All' || p.cat === currentCat;
+    return matchQ && matchC;
+  });
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-light);font-size:13px;">No products found</div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(p => {
+    const isOut = p.stock === 0;
+    const isLow = p.stock > 0 && p.stock <= 5;
+    const stockLabel = isOut ? 'Out of stock' : isLow ? `Low: ${p.stock} left` : `${p.stock} in stock`;
+    const stockClass = isOut ? 'out' : isLow ? 'low' : '';
+    return `<div class="product-card${isOut?' out-of-stock':''}" onclick="${isOut ? "showToast('This product is out of stock')" : `addToCart('${p.id}')`}" title="${p.name}">
+      <div class="added-flash" id="flash-${p.id}"></div>
+      <span class="p-emoji">${p.emoji}</span>
+      <div class="p-name">${p.name}</div>
+      <div class="p-price">GH₵ ${p.price.toFixed(2)}</div>
+      <div class="p-stock ${stockClass}">${stockLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+function setCategory(el, cat) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentCat = cat;
+  renderProducts();
+}
+
+function filterProducts() { renderProducts(); }
+
+function addToCart(id) {
+  const productId = String(id);
+  const p = PRODUCTS.find(x => String(x.id) === productId);
+  if (!p || p.stock === 0) return;
+  if (cart[productId]) {
+    if (cart[productId].qty >= p.stock) { showToast('Max stock reached for ' + p.name); return; }
+    cart[productId].qty++;
+  } else {
+    cart[productId] = { ...p, qty: 1 };
+  }
+  // Flash effect
+  const flash = document.getElementById('flash-' + productId);
+  if (flash) { flash.style.opacity = '1'; setTimeout(() => flash.style.opacity = '0', 200); }
+  renderCart();
+}
+
+function renderCart() {
+  const keys = Object.keys(cart);
+  const empty = document.getElementById('cart-empty');
+  const container = document.getElementById('cart-items');
+  document.getElementById('cart-count').textContent = keys.reduce((a, k) => a + cart[k].qty, 0);
+
+  // Remove old items (keep empty div)
+  container.querySelectorAll('.cart-item').forEach(e => e.remove());
+
+  if (keys.length === 0) {
+    empty.style.display = 'flex';
+    document.getElementById('checkout-btn').disabled = true;
+  } else {
+    empty.style.display = 'none';
+    document.getElementById('checkout-btn').disabled = false;
+    keys.forEach(id => {
+      const item = cart[id];
+      const div = document.createElement('div');
+      div.className = 'cart-item';
+      div.id = 'ci-' + id;
+      div.innerHTML = `
+        <div class="ci-emoji">${item.emoji}</div>
+        <div class="ci-info">
+          <div class="ci-name">${item.name}</div>
+          <div class="ci-unit">GH₵ ${item.price.toFixed(2)} each</div>
+        </div>
+        <div class="ci-qty">
+          <button class="qty-btn" onclick="changeQty('${id}',-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${id}',1)">+</button>
+        </div>
+        <div class="ci-total">GH₵ ${(item.price * item.qty).toFixed(2)}</div>
+        <button class="ci-del" onclick="removeItem('${id}')">✕</button>`;
+      container.appendChild(div);
+    });
+  }
+  recalc();
+}
+
+function changeQty(id, delta) {
+  const productId = String(id);
+  if (!cart[productId]) return;
+  cart[productId].qty += delta;
+  const p = PRODUCTS.find(x => String(x.id) === productId);
+  if (cart[productId].qty <= 0) delete cart[productId];
+  else if (p && cart[productId].qty > p.stock) { cart[productId].qty = p.stock; showToast('Max stock reached'); }
+  renderCart();
+}
+
+function removeItem(id) { delete cart[id]; renderCart(); }
+
+function clearCart() {
+  if (Object.keys(cart).length === 0) return;
+  cart = {};
+  renderCart();
+  showToast('Cart cleared');
+}
+
+function recalc() {
+  const keys = Object.keys(cart);
+  const sub = keys.reduce((a, k) => a + cart[k].price * cart[k].qty, 0);
+  const tax = sub * 0.05;
+  const dVal = parseFloat(document.getElementById('discount-val').value) || 0;
+  const dType = document.getElementById('discount-type').value;
+  let discAmt = dType === 'pct' ? sub * (dVal / 100) : Math.min(dVal, sub);
+  discAmt = Math.max(0, discAmt);
+  const total = Math.max(0, sub + tax - discAmt);
+
+  document.getElementById('subtotal-val').textContent = 'GH₵ ' + sub.toFixed(2);
+  document.getElementById('tax-val').textContent = 'GH₵ ' + tax.toFixed(2);
+  document.getElementById('discount-display').textContent = discAmt > 0 ? '− GH₵ ' + discAmt.toFixed(2) : '—';
+  document.getElementById('total-val').textContent = 'GH₵ ' + total.toFixed(2);
+  calcChange();
+}
+
+function setPayment(el, method) {
+  if (method === 'Credit' || method === 'Voucher') {
+    showToast('This payment method is not enabled yet. Use Cash, MoMo, Card, or Split.');
+    return;
+  }
+  document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedPayment = method;
+  document.getElementById('cash-tender-row').style.display = method === 'Cash' ? 'flex' : 'none';
+  calcChange();
+}
+
+function toBackendPaymentMethod(method) {
+  const mapping = {
+    Cash: 'CASH',
+    MoMo: 'MOBILE_MONEY',
+    Card: 'CARD',
+    Split: 'SPLIT',
+  };
+  return mapping[method] || null;
+}
+
+function shouldUseGateway(method) {
+  return method === 'MoMo';
+}
+
+function getCashierFallbackEmail() {
+  const rawName = (currentUser && currentUser.name) ? currentUser.name : 'cashier';
+  const normalized = rawName.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
+  return `${normalized || 'cashier'}@example.com`;
+}
+
+function isValidEmail(email) {
+  const value = String(email || '').trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function getSelectedCustomer() {
+  const selectedId = document.getElementById('customer-select').value;
+  if (!selectedId) {
+    return null;
+  }
+  return CUSTOMERS.find(c => String(c.id) === String(selectedId)) || null;
+}
+
+function getPaymentContactEmail() {
+  const customer = getSelectedCustomer();
+  if (customer && customer.email && isValidEmail(customer.email)) {
+    return customer.email;
+  }
+  const fallback = getCashierFallbackEmail();
+  return isValidEmail(fallback) ? fallback : 'pos.test@example.com';
+}
+
+function getPaymentContactPhone() {
+  const customer = getSelectedCustomer();
+  if (customer && customer.phone) {
+    return customer.phone;
+  }
+  return '';
+}
+
+async function initializeMoMoPayment(amount) {
+  const payload = {
+    amount: Number(amount.toFixed(2)),
+    email: getPaymentContactEmail(),
+    phone_number: getPaymentContactPhone(),
+    currency: 'GHS',
+  };
+  return apiCall('POST', '/payments/paystack/initialize/', payload);
+}
+
+async function verifyMoMoPayment(reference) {
+  return apiCall('POST', '/payments/paystack/verify/', { reference });
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function verifyMoMoPaymentWithRetry(reference, maxAttempts = 8, delayMs = 2500) {
+  let lastResult = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    lastResult = await verifyMoMoPayment(reference);
+    if (lastResult && lastResult.verified) {
+      return lastResult;
+    }
+    if (attempt < maxAttempts) {
+      showToast(`Waiting for MoMo confirmation... (${attempt}/${maxAttempts})`);
+      await wait(delayMs);
+    }
+  }
+  return lastResult;
+}
+
+// Modal-based confirmation functions (replace window.confirm for better cross-tab support)
+function confirmPaymentModalWithPromise() {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('modal-payment-confirm');
+    const btnOk = document.getElementById('btn-payment-ok');
+    const btnCancel = document.getElementById('btn-payment-cancel');
+
+    const cleanup = () => {
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+    };
+
+    const onOk = () => {
+      closeModal('modal-payment-confirm');
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      closeModal('modal-payment-confirm');
+      cleanup();
+      resolve(false);
+    };
+
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+    modal.classList.add('open');
+  });
+}
+
+function confirmVerificationStatusModalWithPromise(statusText) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById('modal-verify-status');
+    const statusEl = document.getElementById('verify-status-text');
+    const btnOk = document.getElementById('btn-verify-ok');
+    const btnCancel = document.getElementById('btn-verify-cancel');
+
+    statusEl.textContent = `Payment status: ${statusText || 'unknown'}`;
+
+    const cleanup = () => {
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+    };
+
+    const onOk = () => {
+      closeModal('modal-verify-status');
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      closeModal('modal-verify-status');
+      cleanup();
+      resolve(false);
+    };
+
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+    modal.classList.add('open');
+  });
+}
+
+function calcChange() {
+  const totalStr = document.getElementById('total-val').textContent.replace('GH₵ ', '');
+  const total = parseFloat(totalStr) || 0;
+  const tendered = parseFloat(document.getElementById('tendered-input').value) || 0;
+  const change = tendered - total;
+  const el = document.getElementById('change-display');
+  if (selectedPayment === 'Cash' && tendered > 0) {
+    el.textContent = change >= 0 ? `Change: GH₵ ${change.toFixed(2)}` : `Short by GH₵ ${Math.abs(change).toFixed(2)}`;
+    el.style.color = change >= 0 ? 'var(--success)' : 'var(--danger)';
+  } else {
+    el.textContent = 'Change: GH₵ 0.00';
+    el.style.color = 'var(--success)';
+  }
+}
+
+function openCheckout() {
+  if (Object.keys(cart).length === 0) return;
+  const sub = Object.values(cart).reduce((a, i) => a + i.price * i.qty, 0);
+  const tax = sub * 0.05;
+  const dVal = parseFloat(document.getElementById('discount-val').value) || 0;
+  const dType = document.getElementById('discount-type').value;
+  let discAmt = dType === 'pct' ? sub * (dVal / 100) : Math.min(dVal, sub);
+  discAmt = Math.max(0, discAmt);
+  const total = Math.max(0, sub + tax - discAmt);
+  const customer = document.getElementById('customer-select');
+  const custText = customer.value ? customer.options[customer.selectedIndex].text : 'Walk-in';
+  const now = new Date();
+
+  document.getElementById('r-txn').textContent = 'TXN-' + String(txnNum).padStart(5, '0');
+  document.getElementById('r-date').textContent = now.toLocaleString('en-GB');
+  document.getElementById('r-customer').textContent = 'Customer: ' + custText;
+  document.getElementById('r-payment').textContent = 'Payment: ' + selectedPayment;
+  document.getElementById('r-items').innerHTML = Object.values(cart).map(i =>
+    `<div class="receipt-line"><span>${i.emoji} ${i.name} ×${i.qty}</span><span>GH₵ ${(i.price * i.qty).toFixed(2)}</span></div>`
+  ).join('');
+  document.getElementById('r-sub').textContent = 'GH₵ ' + sub.toFixed(2);
+  document.getElementById('r-tax').textContent = 'GH₵ ' + tax.toFixed(2);
+  document.getElementById('r-disc').textContent = discAmt > 0 ? '− GH₵ ' + discAmt.toFixed(2) : '—';
+  document.getElementById('r-total').textContent = 'GH₵ ' + total.toFixed(2);
+
+  document.getElementById('modal-receipt').classList.add('open');
+}
+
+async function confirmSale() {
+  const confirmButton = document.querySelector('#modal-receipt .btn-navy-sm');
+  const receiptModal = document.getElementById('modal-receipt');
+  if (confirmButton) {
+    confirmButton.disabled = true;
+  }
+
+  try {
+  const totalStr = document.getElementById('r-total').textContent;
+  const total = parseFloat(totalStr.replace('GH₵ ', '')) || 0;
+  const tendered = parseFloat(document.getElementById('tendered-input').value) || 0;
+  const change = selectedPayment === 'Cash' && tendered > 0 ? Math.max(0, tendered - total) : 0;
+
+  // Build checkout payload - only send fields that API expects
+  const items = Object.values(cart).map(item => ({
+    product_id: parseInt(item.id, 10),
+    quantity: item.qty,
+  }));
+
+  const discValStr = document.getElementById('discount-val').value || '0';
+  const discVal = parseFloat(discValStr) || 0;
+  const discType = document.getElementById('discount-type').value;
+  const sub = Object.values(cart).reduce((a, i) => a + i.price * i.qty, 0);
+  let discountAmount = discType === 'pct' ? sub * (discVal / 100) : Math.min(discVal, sub);
+  discountAmount = Math.max(0, discountAmount);
+  const tax = sub * 0.05;
+
+  const customerId = document.getElementById('customer-select').value || null;
+  const backendPaymentMethod = toBackendPaymentMethod(selectedPayment);
+  if (!backendPaymentMethod) {
+    showToast('Unsupported payment method. Use Cash, MoMo, Card, or Split.');
+    return;
+  }
+
+  let paymentReference = '';
+  let checkoutNotes = '';
+  if (shouldUseGateway(selectedPayment)) {
+    showToast('Initializing MoMo payment with Paystack...');
+
+    const initResult = await initializeMoMoPayment(total);
+    if (!initResult || !initResult.reference || !initResult.authorization_url) {
+      showToast('Failed to initialize Paystack payment. Please try again.');
+      return;
+    }
+
+    paymentReference = initResult.reference;
+    showToast('Opening Paystack payment page... Complete payment to auto-record sale.');
+    window.open(initResult.authorization_url, '_blank', 'noopener,noreferrer');
+
+    // Start automatic verification polling
+    showToast('Waiting for payment confirmation...');
+    const verifyResult = await verifyMoMoPaymentWithRetry(paymentReference);
+    
+    if (!verifyResult || !verifyResult.verified) {
+      // Payment not verified yet - ask user if they want to continue
+      const statusText = verifyResult && verifyResult.gateway_status ? verifyResult.gateway_status : 'not successful';
+      const continueInTest = await confirmVerificationStatusModalWithPromise(statusText);
+      if (!continueInTest) {
+        showToast(`MoMo verification pending/failed (${statusText}). Please try checkout again in a few seconds.`);
+        return;
+      }
+
+      checkoutNotes = `Paystack MoMo pending/manual confirmation [status=${statusText}]`;
+      showToast('Recording sale with pending verification reference...');
+    } else {
+      // Payment verified - auto-record
+      paymentReference = verifyResult.reference || paymentReference;
+      checkoutNotes = `Paystack MoMo verified [status=${verifyResult.gateway_status}]`;
+      showToast('✓ Payment verified! Recording sale...');
+    }
+  }
+
+  const payload = {
+    items: items,
+    payment_method: backendPaymentMethod,
+    discount_amount: parseFloat(discountAmount.toFixed(2)),
+    tax_amount: parseFloat(tax.toFixed(2)),
+  };
+
+  if (paymentReference) {
+    payload.payment_reference = paymentReference;
+  }
+  if (checkoutNotes) {
+    payload.notes = checkoutNotes;
+  }
+
+  // Only add customer_id if selected
+  if (customerId) {
+    payload.customer_id = parseInt(customerId);
+  }
+
+  // Submit checkout
+  console.log('Submitting checkout with payload:', payload);
+  showToast('Processing checkout...');
+  const result = await apiCall('POST', '/sales/checkout/', payload);
+
+  if (!result) {
+    console.error('Checkout API call failed. Modal remains open. User can retry after fixing error.');
+    return;
+  }
+
+  // Success - close receipt modal and show success
+  document.getElementById('s-total').textContent = 'GH₵ ' + total.toFixed(2);
+  document.getElementById('s-change').textContent = selectedPayment === 'Cash' && change > 0
+    ? 'Change returned: GH₵ ' + change.toFixed(2) : 'Paid via ' + selectedPayment;
+
+  closeModal('modal-receipt');
+  document.getElementById('modal-success').classList.add('open');
+  showToast('✓ Sale recorded successfully');
+  } finally {
+    if (confirmButton) {
+      confirmButton.disabled = false;
+    }
+  }
+}
+
+function newSale() {
+  txnNum++;
+  document.getElementById('txn-id').textContent = String(txnNum).padStart(5, '0');
+  cart = {};
+  document.getElementById('discount-val').value = '';
+  document.getElementById('tendered-input').value = '';
+  document.getElementById('customer-select').value = '';
+  document.getElementById('loyalty-info').textContent = '';
+  document.querySelectorAll('.pay-method').forEach(b => b.classList.remove('active'));
+  document.querySelector('.pay-method').classList.add('active');
+  selectedPayment = 'Cash';
+  document.getElementById('cash-tender-row').style.display = 'flex';
+  renderCart();
+  closeModal('modal-success');
+  showToast('Ready for next sale · TXN-' + String(txnNum).padStart(5, '0'));
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ===== BARCODE SCANNER =====
+let scannedProduct = null;
+
+function openBarcodeScanner() {
+  const modal = document.getElementById('modal-barcode');
+  if (!modal) return;
+  modal.classList.add('open');
+  scannedProduct = null;
+  document.getElementById('barcode-input').value = '';
+  document.getElementById('barcode-result').style.display = 'none';
+  document.getElementById('barcode-message').style.display = 'none';
+  document.getElementById('add-scanned-btn').style.display = 'none';
+  setTimeout(() => document.getElementById('barcode-input').focus(), 100);
+}
+
+function closeBarcodeScanner() {
+  const modal = document.getElementById('modal-barcode');
+  if (!modal) return;
+  modal.classList.remove('open');
+  scannedProduct = null;
+  document.getElementById('barcode-input').value = '';
+}
+
+function getEmojiForCategory(category) {
+  const emojiMap = { 'Beverages': '🧃', 'Food': '🍱', 'Household': '🧹', 'Personal Care': '🧴' };
+  return emojiMap[category] || '📦';
+}
+
+async function lookupProductByBarcode(barcode) {
+  if (!barcode || barcode.trim().length === 0) {
+    document.getElementById('barcode-result').style.display = 'none';
+    document.getElementById('barcode-message').style.display = 'none';
+    return;
+  }
+
+  try {
+    const data = await apiCall('GET', `/products/lookup-barcode/?barcode=${encodeURIComponent(barcode.trim())}`);
+    if (data && data.id) {
+      scannedProduct = {
+        id: data.id,
+        name: data.name,
+        sku: data.sku,
+        price: parseFloat(data.price),
+        quantity: data.quantity,
+        category_name: data.category_name || 'General'
+      };
+
+      // Display result
+      document.getElementById('barcode-result').style.display = 'block';
+      document.getElementById('barcode-message').style.display = 'none';
+      document.getElementById('result-emoji').textContent = getEmojiForCategory(scannedProduct.category_name);
+      document.getElementById('result-name').textContent = scannedProduct.name;
+      document.getElementById('result-sku').textContent = scannedProduct.sku;
+      document.getElementById('result-price').textContent = 'GH₵ ' + scannedProduct.price.toFixed(2);
+      document.getElementById('add-scanned-btn').style.display = 'block';
+      document.getElementById('add-scanned-btn').disabled = false;
+      document.getElementById('add-scanned-btn').textContent = 'Add to Cart →';
+
+      // Auto-add to cart if in stock
+      if (scannedProduct.quantity > 0) {
+        addScannedProduct();
+      } else {
+        document.getElementById('add-scanned-btn').textContent = 'Out of Stock';
+        document.getElementById('add-scanned-btn').disabled = true;
+        showToast('Product is out of stock.');
+      }
+    } else {
+      throw new Error('Invalid product data');
+    }
+  } catch (error) {
+    scannedProduct = null;
+    document.getElementById('barcode-result').style.display = 'none';
+    document.getElementById('barcode-message').style.display = 'block';
+    document.getElementById('add-scanned-btn').style.display = 'none';
+    showToast('Product not found for this barcode.');
+  }
+}
+
+function addScannedProduct() {
+  if (!scannedProduct) return;
+  
+  const product = PRODUCTS.find(p => p.id === scannedProduct.id);
+  if (!product) {
+    showToast('Product no longer available.');
+    return;
+  }
+
+  addProduct(scannedProduct.id);
+  showToast(`${scannedProduct.name} added to cart.`);
+  closeBarcodeScanner();
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o && o.id !== 'modal-success') closeModal(o.id); });
+});
+
+// Diagnostic logging
+function logDiagnostics() {
+  console.log('=== POS Page Diagnostics ===');
+  console.log('API Base URL:', API_BASE_URL);
+  console.log('Token exists:', !!localStorage.getItem(ACCESS_TOKEN_KEY));
+  console.log('User:', localStorage.getItem(USER_NAME_KEY));
+  console.log('Role:', localStorage.getItem(USER_ROLE_KEY));
+  console.log('Products loaded:', PRODUCTS.length);
+  console.log('Customers loaded:', CUSTOMERS.length);
+  if (!localStorage.getItem(ACCESS_TOKEN_KEY)) {
+    console.warn('⚠️  No authentication token found! User must be logged in.');
+  }
+  console.log('=============================');
+}
+
+// Init on load
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('[POS] Page loading...');
+  initUserInfo();
+  initNavigation();
+  console.log('[POS] Starting data load...');
+  await initData();
+  logDiagnostics();
+  renderProducts();
+  console.log('[POS] Page initialization complete');
+
+  // Setup barcode scanner event listeners
+  const barcodeInput = document.getElementById('barcode-input');
+  if (barcodeInput) {
+    let barcodeTimeout;
+    
+    barcodeInput.addEventListener('keydown', async (event) => {
+      if (event.key === 'Enter') {
+        const barcode = barcodeInput.value.trim();
+        if (barcode) {
+          await lookupProductByBarcode(barcode);
+          barcodeInput.value = '';
+          barcodeInput.focus();
+        }
+      }
+    });
+
+    barcodeInput.addEventListener('input', () => {
+      clearTimeout(barcodeTimeout);
+      const barcode = barcodeInput.value.trim();
+      if (barcode.length > 3) {
+        barcodeTimeout = setTimeout(() => {
+          lookupProductByBarcode(barcode);
+        }, 300);
+      }
+    });
+  }
+
+  // Setup modal close on overlay click
+  const barcodeModal = document.getElementById('modal-barcode');
+  if (barcodeModal) {
+    barcodeModal.addEventListener('click', (event) => {
+      if (event.target === barcodeModal) {
+        closeBarcodeScanner();
+      }
+    });
+  }
+});
+
+(function () {
+  const sidebar = document.querySelector('.sidebar');
+  const toggle = document.getElementById('mobile-menu-toggle');
+  if (!sidebar || !toggle) {
+    return;
+  }
+
+  function closeMenu() {
+    sidebar.classList.remove('mobile-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', function (event) {
+    event.stopPropagation();
+    const open = sidebar.classList.toggle('mobile-open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  document.addEventListener('click', function (event) {
+    if (window.innerWidth > 980) {
+      return;
+    }
+    if (!sidebar.contains(event.target)) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980) {
+      closeMenu();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,540 @@
+:root {
+    --bg: #eef1f6;
+    --shell: #ffffff;
+    --panel-dark: #0f2858;
+    --panel-dark-soft: #0c224d;
+    --text-main: #1f2533;
+    --text-muted: #667086;
+    --field-bg: #ffffff;
+    --field-border: #d8dde8;
+    --primary: #102a57;
+    --primary-soft: #ebf0fb;
+    --success: #0b7a4b;
+    --danger: #b42318;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Geist", sans-serif;
+    color: var(--text-main);
+    background: var(--bg);
+}
+
+input,
+select,
+button,
+textarea {
+    font-family: "Geist", sans-serif;
+}
+
+.mono {
+    font-family: "Geist Mono", monospace;
+    font-variant-numeric: tabular-nums;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.login-shell {
+    width: min(980px, 100%);
+    min-height: 600px;
+    border-radius: 16px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    background: var(--shell);
+    border: 1px solid #dde3ef;
+    box-shadow: 0 14px 36px rgba(15, 28, 52, 0.12);
+}
+
+.brand-panel {
+    background:
+        linear-gradient(170deg, var(--panel-dark) 0%, var(--panel-dark-soft) 100%),
+        linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
+    color: #e8eef9;
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    border: 1px solid rgba(227, 234, 250, 0.22);
+    background: rgba(5, 14, 35, 0.35);
+    position: relative;
+}
+
+.brand-icon::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid rgba(227, 234, 250, 0.4);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.brand-name {
+    font-family: "Instrument Serif", serif;
+    font-size: 40px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.brand-version {
+    margin-left: 4px;
+    color: #8e9ec3;
+    font-size: 12px;
+}
+
+.brand-copy {
+    max-width: 350px;
+    color: #b8c5de;
+    line-height: 1.45;
+    font-size: 17px;
+    font-family: "Instrument Serif", serif;
+    margin-bottom: 24px;
+}
+
+.role-cards {
+    margin-top: auto;
+    display: grid;
+    gap: 14px;
+}
+
+.role-card {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(218, 227, 246, 0.13);
+    background: rgba(9, 20, 44, 0.38);
+}
+
+.role-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    background: linear-gradient(145deg, #20498f, #285ec3);
+}
+
+.role-card h3 {
+    font-family: "Geist", sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #f0f5ff;
+    margin-bottom: 3px;
+    line-height: 1.15;
+}
+
+.role-card p {
+    font-family: "Geist", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: #a9b7d3;
+}
+
+.role-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8ea1c8;
+    border: 1px solid rgba(180, 197, 227, 0.25);
+    border-radius: 6px;
+    padding: 4px 7px;
+}
+
+.form-panel {
+    padding: 44px 38px;
+    background: #ffffff;
+}
+
+.form-panel h2 {
+    font-family: "Instrument Serif", serif;
+    font-size: 52px;
+    letter-spacing: -0.025em;
+    font-weight: 400;
+    margin-bottom: 10px;
+    line-height: 0.9;
+}
+
+.helper-text {
+    color: var(--text-muted);
+    margin-bottom: 22px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.role-block {
+    margin-bottom: 24px;
+}
+
+.role-title {
+    display: block;
+    color: #50586b;
+    text-transform: none;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+}
+
+.role-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.role-tab {
+    height: 48px;
+    border: 1px solid var(--field-border);
+    border-radius: 10px;
+    background: #fff;
+    color: #535a6d;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: "Geist", sans-serif;
+    cursor: pointer;
+    transition: all 140ms ease;
+}
+
+.role-tab.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #f8fbff;
+}
+
+.role-tab:not(.active):hover {
+    border-color: #b7c2d8;
+    background: #f8faff;
+}
+
+.login-card {
+    text-align: left;
+}
+
+.login-card label {
+    display: block;
+    color: #4b5262;
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.required-mark {
+    color: #c62828;
+    font-weight: 700;
+}
+
+.login-card input[type="text"],
+.login-card input[type="password"] {
+    width: 100%;
+    height: 48px;
+    border: 1px solid var(--field-border);
+    outline: 0;
+    border-radius: 10px;
+    background: var(--field-bg);
+    color: var(--text-main);
+    font-size: 16px;
+    font-family: "Geist", sans-serif;
+    padding: 0 14px;
+    margin-bottom: 16px;
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-field input[type="password"],
+.password-field input[type="text"] {
+    padding-right: 72px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: #4b5262;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    width: 30px;
+    height: 28px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.password-toggle svg {
+    width: 16px;
+    height: 16px;
+    fill: #4b5262;
+}
+
+.password-toggle .eye-closed {
+    display: none;
+}
+
+.password-toggle.is-visible .eye-open {
+    display: none;
+}
+
+.password-toggle.is-visible .eye-closed {
+    display: block;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid #9fb0d4;
+    outline-offset: 1px;
+}
+
+.login-card input::placeholder {
+    color: #737d92;
+}
+
+.login-card input:focus {
+    border-color: #9fb0d4;
+    box-shadow: 0 0 0 3px rgba(19, 42, 87, 0.08);
+}
+
+.login-card input.input-invalid {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.1);
+}
+
+.field-error-tooltip {
+    display: block;
+    position: relative;
+    background: #fff2f2;
+    border: 1px solid #efc4c4;
+    color: #9f1f1f;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 10px;
+    margin: -8px 0 12px;
+    line-height: 1.3;
+    max-width: min(100%, 34ch);
+    width: fit-content;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.field-error-tooltip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 14px;
+    width: 10px;
+    height: 10px;
+    background: #fff2f2;
+    border-left: 1px solid #efc4c4;
+    border-top: 1px solid #efc4c4;
+    transform: rotate(45deg);
+}
+
+.card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 2px 0 20px;
+}
+
+.remember-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1;
+    color: #5f6679;
+}
+
+.remember-row input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    accent-color: var(--primary);
+    margin: 0;
+    transform: none;
+}
+
+.forgot-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.login-btn {
+    width: 100%;
+    height: 50px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 17px;
+    font-family: "Geist", sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.login-btn:hover {
+    filter: brightness(1.03);
+}
+
+.login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.status-text {
+    min-height: 19px;
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.status-text.error {
+    color: var(--danger);
+}
+
+.status-text.success {
+    color: var(--success);
+}
+
+.switch-link {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.switch-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 920px) {
+    .login-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-panel,
+    .form-panel {
+        padding: 34px 24px;
+    }
+
+    .brand-name,
+    .form-panel h2 {
+        font-size: 38px;
+    }
+
+    .helper-text {
+        font-size: 14px;
+    }
+
+    .role-cards {
+        margin-top: 28px;
+    }
+
+    .login-card input[type="text"],
+    .login-card input[type="password"],
+    .login-btn {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 520px) {
+    .login-page {
+        padding: 12px;
+    }
+
+    .brand-panel,
+    .form-panel {
+        padding: 20px 14px;
+    }
+
+    .brand-name,
+    .form-panel h2 {
+        font-size: 32px;
+    }
+
+    .role-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    .role-card {
+        grid-template-columns: 28px 1fr;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .role-tag {
+        display: none;
+    }
+
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .field-error-tooltip {
+        max-width: 100%;
+        font-size: 11px;
+        padding: 6px 9px;
+    }
+
+    .password-toggle {
+        width: 28px;
+        height: 26px;
+    }
+
+    .field-error-tooltip::before {
+        left: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .brand-panel {
+        display: none;
+    }
+
+    .login-shell {
+        min-height: auto;
+    }
+
+    .form-panel h2 {
+        font-size: 28px;
+    }
+}

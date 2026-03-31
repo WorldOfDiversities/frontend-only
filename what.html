@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Point of Sale System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="what.css">
+</head>
+<body>
+  <main class="hero-wrapper">
+    <section class="hero-card">
+      <header class="topbar">
+        <a href="#" class="brand" aria-label="Point of Sale System">
+          <img src="images/logo-image.png" alt="Point of Sale System logo">
+          <span>Point of Sale System</span>
+        </a>
+
+        <button class="theme-pills" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
+          <span class="dot blue" id="theme-dot-dark"></span>
+          <span class="dot light" id="theme-dot-light"></span>
+        </button>
+
+        <nav class="top-actions" aria-label="Authentication actions">
+          <a href="login.html" class="btn btn-login">Login</a>
+          <a href="register.html" class="btn btn-register">Register</a>
+        </nav>
+      </header>
+
+      <div class="hero-content">
+        <div class="hero-copy">
+          <h1>
+            Find Your Shopping <span>Accelerator</span><br>
+            Shop Smarter
+          </h1>
+
+          <p>
+            This is where shopping meets smart tech and superior user service.
+            Elevate your retail experience with modern speed, connection,
+            and solutions built to simplify the way you shop.
+          </p>
+
+          <div class="store-row" aria-label="App download links">
+            <a href="#" class="store-badge" aria-label="Get it on Google Play">
+              <span class="store-small">GET IT ON</span>
+              <span class="store-large">Google Play</span>
+            </a>
+
+            <a href="#" class="store-badge" aria-label="Download on the App Store">
+              <span class="store-small">Download on the</span>
+              <span class="store-large">App Store</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-image-shell">
+          <img
+            class="hero-image"
+            src="images/Hero-image.png"
+            alt="Smiling student with graduation cap"
+          >
+        </div>
+      </div>
+
+      <span class="shape red"></span>
+      <span class="shape yellow"></span>
+      <span class="shape blue"></span>
+      <span class="shape green"></span>
+    </section>
+  </main>
+</body>
+<script>
+  const THEME_KEY = "pos_onboarding_theme";
+  const body = document.body;
+  const toggle = document.getElementById("theme-toggle");
+  const darkDot = document.getElementById("theme-dot-dark");
+  const lightDot = document.getElementById("theme-dot-light");
+
+  function applyTheme(theme) {
+    const normalized = theme === "dark" ? "dark" : "light";
+    const isDark = normalized === "dark";
+
+    body.setAttribute("data-theme", normalized);
+    toggle.setAttribute("aria-pressed", String(isDark));
+    toggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+
+    darkDot.classList.toggle("active", isDark);
+    lightDot.classList.toggle("active", !isDark);
+  }
+
+  function resolveInitialTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === "dark" || saved === "light") {
+      return saved;
+    }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+
+  function toggleTheme() {
+    const current = body.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  }
+
+  applyTheme(resolveInitialTheme());
+  toggle.addEventListener("click", toggleTheme);
+</script>
+</html>
