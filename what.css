@@ -9,7 +9,6 @@
     --text-muted: #6a7080;
     --field-border: #d8dde8;
     --pills-bg: #f3f6fc;
-    --store-small: #d2dbef;
     --hero-tilt-a: rgba(177, 193, 227, 0.45);
     --hero-tilt-b: rgba(243, 244, 247, 0);
 }
@@ -23,7 +22,6 @@ body[data-theme="dark"] {
     --text-muted: #a6b0c5;
     --field-border: #273247;
     --pills-bg: #0e1a31;
-    --store-small: #d7def4;
     --hero-tilt-a: rgba(117, 142, 199, 0.24);
     --hero-tilt-b: rgba(11, 17, 32, 0);
 }
@@ -206,40 +204,7 @@ body[data-theme="dark"] .btn-register {
     font-size: 12px;
     line-height: 1.62;
     max-width: 450px;
-    margin-bottom: 28px;
-}
-
-.store-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.store-badge {
-    text-decoration: none;
-    color: #fff;
-    background: var(--primary);
-    border: 1px solid rgba(19, 42, 87, 0.22);
-    border-radius: 7px;
-    min-width: 142px;
-    padding: 7px 12px;
-    display: inline-flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.store-small {
-    font-size: 8px;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--store-small);
-}
-
-.store-large {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1;
+    margin-bottom: 8px;
 }
 
 .hero-image-shell {
@@ -380,15 +345,6 @@ body[data-theme="dark"] .btn-register {
     .hero-copy h1 {
         font-size: clamp(28px, 8vw, 36px);
     }
-
-    .store-row {
-        justify-content: center;
-    }
-
-    .store-badge {
-        min-width: 132px;
-        padding: 8px 11px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -429,15 +385,6 @@ body[data-theme="dark"] .btn-register {
     .hero-copy p {
         font-size: 11px;
         margin-bottom: 18px;
-    }
-
-    .store-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .store-badge {
-        width: 100%;
     }
 
     .hero-image {
