@@ -94,15 +94,15 @@ h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
 .products-grid::-webkit-scrollbar-track{background:transparent;}
 .products-grid::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 
-.product-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 0.85rem;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;user-select:none;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+.product-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 0.9rem 1.3rem;cursor:pointer;transition:all 0.15s;text-align:center;position:relative;user-select:none;min-height:148px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
 .product-card:hover{border-color:var(--navy);box-shadow:0 3px 16px rgba(15,31,61,0.1);transform:translateY(-1px);}
 .product-card:active{transform:scale(0.97);}
 .product-card.out-of-stock{opacity:0.45;cursor:not-allowed;}
 .product-card.out-of-stock:hover{transform:none;box-shadow:none;border-color:var(--border);}
 .p-emoji{font-size:30px;margin-bottom:8px;display:block;}
-.p-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:4px;line-height:1.3;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px;}
-.p-price{font-size:13px;color:var(--navy);font-family:'Geist Mono',monospace;font-weight:500;margin-bottom:4px;}
-.p-stock{font-size:10px;color:var(--text-light);}
+.p-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;line-height:1.3;display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px;width:100%;text-align:center;}
+.p-price{font-size:13px;color:var(--navy);font-family:'Geist Mono',monospace;font-weight:500;margin-bottom:2px;}
+.p-stock{font-size:10px;color:var(--text-light);width:100%;text-align:center;}
 .p-stock.low{color:var(--warn);}
 .p-stock.out{color:var(--danger);}
 .added-flash{position:absolute;inset:0;background:rgba(15,31,61,0.08);border-radius:var(--radius-lg);opacity:0;pointer-events:none;transition:opacity 0.2s;}
