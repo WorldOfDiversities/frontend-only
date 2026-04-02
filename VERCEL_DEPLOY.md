@@ -1,5 +1,7 @@
 # Deploy FRONTEND to Vercel
 
+This guide assumes the GitHub repository contains only frontend files at the repository root.
+
 ## 1. Push code
 
 Push this repository to GitHub.
@@ -10,7 +12,7 @@ Push this repository to GitHub.
 2. Click New Project and import your GitHub repository.
 3. In project settings:
    - Framework Preset: Other
-   - Root Directory: FRONTEND
+   - Root Directory: .
    - Build Command: (leave empty)
    - Output Directory: .
 4. Deploy.
@@ -30,7 +32,7 @@ After deploy, these should open successfully:
 
 Your frontend uses API base URL from app-config.
 
-If frontend and backend are on different domains, set this in FRONTEND/app-config.js:
+If frontend and backend are on different domains, set this in app-config.js:
 
 window.POS_API_BASE_URL = "https://YOUR_BACKEND_DOMAIN/api/v1";
 

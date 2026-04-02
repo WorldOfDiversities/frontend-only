@@ -388,13 +388,13 @@ tbody tr:hover td{background:#fafbfd;}
           <div class="setting-card-header"><div><div class="sch-title">Theme Color</div><div class="sch-sub">Primary color used across the interface</div></div></div>
           <div class="setting-card-body">
             <div class="theme-options" id="theme-options">
-              <div class="theme-opt selected" style="background:#0f1f3d;" onclick="selectTheme(this,'#0f1f3d','Navy')" title="Navy (Default)"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#1d4ed8;" onclick="selectTheme(this,'#1d4ed8','Blue')" title="Blue"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#065f46;" onclick="selectTheme(this,'#065f46','Green')" title="Green"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#7c3aed;" onclick="selectTheme(this,'#7c3aed','Purple')" title="Purple"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#b45309;" onclick="selectTheme(this,'#b45309','Amber')" title="Amber"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#be123c;" onclick="selectTheme(this,'#be123c','Rose')" title="Rose"><div class="check">✓</div></div>
-              <div class="theme-opt" style="background:#374151;" onclick="selectTheme(this,'#374151','Slate')" title="Slate"><div class="check">✓</div></div>
+              <div class="theme-opt selected" data-theme-color="#0f1f3d" style="background:#0f1f3d;" onclick="selectTheme(this,'#0f1f3d','Navy (Default)')" title="Navy (Default)"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#1d4ed8" style="background:#1d4ed8;" onclick="selectTheme(this,'#1d4ed8','Blue')" title="Blue"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#065f46" style="background:#065f46;" onclick="selectTheme(this,'#065f46','Green')" title="Green"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#7c3aed" style="background:#7c3aed;" onclick="selectTheme(this,'#7c3aed','Purple')" title="Purple"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#b45309" style="background:#b45309;" onclick="selectTheme(this,'#b45309','Amber')" title="Amber"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#be123c" style="background:#be123c;" onclick="selectTheme(this,'#be123c','Rose')" title="Rose"><div class="check">✓</div></div>
+              <div class="theme-opt" data-theme-color="#374151" style="background:#374151;" onclick="selectTheme(this,'#374151','Slate')" title="Slate"><div class="check">✓</div></div>
             </div>
             <div style="margin-top:1rem;font-size:12px;color:var(--text-muted);">Selected: <span id="theme-label" style="font-weight:500;color:var(--text);">Navy (Default)</span></div>
           </div>
@@ -639,7 +639,7 @@ tbody tr:hover td{background:#fafbfd;}
         <div class="section-hdr"><h3>Staff &amp; Roles</h3><p>Manage your team, their roles and system access</p></div>
         <div class="setting-card" style="padding:0;overflow:hidden;">
           <div class="setting-card-header">
-            <div><div class="sch-title">Team Members</div><div class="sch-sub">4 active staff members</div></div>
+            <div><div class="sch-title">Team Members</div><div class="sch-sub" id="staff-count-sub">Loading staff...</div></div>
             <button class="btn btn-navy btn-sm" onclick="openAddStaff()">+ Add Staff</button>
           </div>
           <div class="tbl-wrap">
@@ -707,20 +707,20 @@ tbody tr:hover td{background:#fafbfd;}
         <div class="setting-card">
           <div class="setting-card-header"><div><div class="sch-title">Alert Types</div></div></div>
           <div class="setting-card-body">
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Low Stock Alerts</div><div class="sr-desc">Notify when a product falls below minimum stock level</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Daily Sales Summary</div><div class="sr-desc">Email a summary report at end of each business day</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Large Transaction Alert</div><div class="sr-desc">Notify admin for transactions above GH₵ 500</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Failed Login Attempts</div><div class="sr-desc">Alert on 3+ consecutive failed logins</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Refund Processed</div><div class="sr-desc">Notify admin whenever a refund is issued</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">New Customer Registration</div><div class="sr-desc">Alert when a new customer is added</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Low Stock Alerts</div><div class="sr-desc">Notify when a product falls below minimum stock level</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="low_stock_alerts" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Daily Sales Summary</div><div class="sr-desc">Email a summary report at end of each business day</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="daily_sales_summary" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Large Transaction Alert</div><div class="sr-desc">Notify admin for transactions above GH₵ 500</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="large_transaction_alert" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Failed Login Attempts</div><div class="sr-desc">Alert on 3+ consecutive failed logins</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="failed_login_attempts" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Refund Processed</div><div class="sr-desc">Notify admin whenever a refund is issued</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="refund_processed" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">New Customer Registration</div><div class="sr-desc">Alert when a new customer is added</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="new_customer_registration" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
           </div>
         </div>
         <div class="setting-card">
           <div class="setting-card-header"><div><div class="sch-title">Notification Channels</div></div></div>
           <div class="setting-card-body">
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">In-App Notifications</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Email Notifications</div><div class="sr-desc">admin@swiftpos.com</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">SMS Alerts</div><div class="sr-desc">+233 24 000 0000</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">In-App Notifications</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="in_app_notifications" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Email Notifications</div><div class="sr-desc">admin@swiftpos.com</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="email_notifications" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">SMS Alerts</div><div class="sr-desc">+233 24 000 0000</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="sms_alerts" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
           </div>
         </div>
       </div>
@@ -731,10 +731,10 @@ tbody tr:hover td{background:#fafbfd;}
         <div class="setting-card">
           <div class="setting-card-header"><div><div class="sch-title">Authentication</div></div></div>
           <div class="setting-card-body">
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Two-Factor Authentication</div><div class="sr-desc">Require OTP code on login for Admin accounts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Force Password Change Every 90 Days</div><div class="sr-desc">Staff must reset passwords quarterly</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Lock Account After Failed Logins</div><div class="sr-desc">Lock after 5 consecutive failed attempts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Session Timeout (minutes)</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>15</option><option selected>30</option><option>60</option><option>120</option></select></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Two-Factor Authentication</div><div class="sr-desc">Require OTP code on login for Admin accounts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="two_factor_auth" onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Force Password Change Every 90 Days</div><div class="sr-desc">Staff must reset passwords quarterly</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="force_password_change_90_days" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Lock Account After Failed Logins</div><div class="sr-desc">Lock after 5 consecutive failed attempts</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="lock_after_failed_logins" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Session Timeout (minutes)</div></div><div class="sr-right"><select class="role-select-inline" data-setting-key="session_timeout_minutes" onchange="markDirty()"><option>15</option><option selected>30</option><option>60</option><option>120</option></select></div></div>
           </div>
         </div>
       </div>
@@ -745,9 +745,9 @@ tbody tr:hover td{background:#fafbfd;}
         <div class="setting-card">
           <div class="setting-card-header"><div><div class="sch-title">Automatic Backup</div></div></div>
           <div class="setting-card-body">
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Enable Auto-Backup</div><div class="sr-desc">Automatically backup the database on a schedule</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Backup Frequency</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>Every 6 hours</option><option selected>Daily</option><option>Weekly</option></select></div></div>
-            <div class="setting-row"><div class="sr-left"><div class="sr-label">Keep Backups For</div></div><div class="sr-right"><select class="role-select-inline" onchange="markDirty()"><option>7 days</option><option selected>30 days</option><option>90 days</option></select></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Enable Auto-Backup</div><div class="sr-desc">Automatically backup the database on a schedule</div></div><div class="sr-right"><label class="toggle"><input type="checkbox" data-setting-key="enable_auto_backup" checked onchange="markDirty()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Backup Frequency</div></div><div class="sr-right"><select class="role-select-inline" data-setting-key="backup_frequency" onchange="markDirty()"><option>Every 6 hours</option><option selected>Daily</option><option>Weekly</option></select></div></div>
+            <div class="setting-row"><div class="sr-left"><div class="sr-label">Keep Backups For</div></div><div class="sr-right"><select class="role-select-inline" data-setting-key="backup_retention_days" onchange="markDirty()"><option>7 days</option><option selected>30 days</option><option>90 days</option></select></div></div>
             <div style="margin-top:1rem;display:flex;gap:8px;">
               <button class="btn btn-outline" onclick="showToast('Creating backup now…','success')">⟳ Backup Now</button>
               <button class="btn btn-outline" onclick="showToast('Downloading last backup…')">↓ Download Last Backup</button>
@@ -900,7 +900,10 @@ function initializeAccessControl() {
   document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
     node.addEventListener('click', () => {
       const route = node.getAttribute('data-route');
-      if (route) window.location.href = route;
+      if (route) {
+        window.POS_UI?.showGlobalLoader?.('Opening page...');
+        window.location.href = route;
+      }
     });
   });
 
@@ -908,12 +911,17 @@ function initializeAccessControl() {
 }
 
 // ─── STAFF DATA ───
-let staff = [
-  {id:'S001',fname:'Admin',lname:'User',email:'admin@swiftpos.com',role:'Admin',pin:'****',lastLogin:'Today 08:15',status:'active',color:'#dbeafe',textColor:'#1e40af'},
-  {id:'S002',fname:'Ama',lname:'Darko',email:'ama@swiftpos.com',role:'Cashier',pin:'****',lastLogin:'Today 07:52',status:'active',color:'#d1fae5',textColor:'#065f46'},
-  {id:'S003',fname:'Kofi',lname:'Boateng',email:'kofi@swiftpos.com',role:'Cashier',pin:'****',lastLogin:'Today 08:00',status:'active',color:'#fef3c7',textColor:'#92400e'},
-  {id:'S004',fname:'Akosua',lname:'Frimpong',email:'akosua@swiftpos.com',role:'Manager',pin:'****',lastLogin:'Yesterday',status:'active',color:'#ede9fe',textColor:'#4c1d95'},
+const ROLE_OPTIONS = ['Admin', 'Manager', 'Cashier'];
+const ROLE_TO_API = { Admin: 'ADMIN', Manager: 'MANAGER', Cashier: 'CASHIER' };
+const API_TO_ROLE = { ADMIN: 'Admin', MANAGER: 'Manager', CASHIER: 'Cashier' };
+const STAFF_AVATAR_COLORS = [
+  { bg: '#dbeafe', txt: '#1e40af' },
+  { bg: '#d1fae5', txt: '#065f46' },
+  { bg: '#fef3c7', txt: '#92400e' },
+  { bg: '#ede9fe', txt: '#4c1d95' },
 ];
+
+let staff = [];
 
 const PERMS = [
   {name:'View Dashboard',admin:true,manager:true,cashier:false},
@@ -1025,8 +1033,46 @@ function applySectionState(sectionId, savedRows) {
   });
 }
 
+function readSectionKeyValues(sectionId) {
+  const root = document.getElementById(sectionId);
+  if (!root) return {};
+
+  const values = {};
+  const controls = root.querySelectorAll('[data-setting-key]');
+  controls.forEach((control) => {
+    const key = String(control.getAttribute('data-setting-key') || '').trim();
+    if (!key) return;
+
+    const type = String(control.type || '').toLowerCase();
+    values[key] = (type === 'checkbox' || type === 'radio') ? !!control.checked : (control.value ?? '');
+  });
+  return values;
+}
+
+function applySectionKeyValues(sectionId, values) {
+  const root = document.getElementById(sectionId);
+  if (!root || !values || typeof values !== 'object') return;
+
+  const controls = root.querySelectorAll('[data-setting-key]');
+  controls.forEach((control) => {
+    const key = String(control.getAttribute('data-setting-key') || '').trim();
+    if (!key || !Object.prototype.hasOwnProperty.call(values, key)) return;
+
+    const type = String(control.type || '').toLowerCase();
+    if (type === 'checkbox' || type === 'radio') {
+      control.checked = !!values[key];
+    } else {
+      control.value = values[key];
+    }
+  });
+}
+
 function collectSettingsPayload() {
   const selectedThemeNode = document.querySelector('.theme-opt.selected');
+  const notificationsControls = readSectionState('sec-notifications');
+  const securityControls = readSectionState('sec-security');
+  const backupControls = readSectionState('sec-backup');
+
   return {
     store_profile: {
       controls: readSectionState('sec-store'),
@@ -1035,7 +1081,7 @@ function collectSettingsPayload() {
     appearance: {
       controls: readSectionState('sec-appearance'),
       theme_label: document.getElementById('theme-label')?.textContent || '',
-      theme_color: selectedThemeNode?.style?.background || '#0f1f3d',
+      theme_color: selectedThemeNode?.getAttribute('data-theme-color') || selectedThemeNode?.style?.background || '#0f1f3d',
       profile_photo_data_url: accountPhotoDataUrl,
     },
     regional: { controls: readSectionState('sec-regional') },
@@ -1043,10 +1089,18 @@ function collectSettingsPayload() {
     receipt: { controls: readSectionState('sec-receipt') },
     payment: { controls: readSectionState('sec-payment') },
     tax: { controls: readSectionState('sec-tax') },
-    notifications: { controls: readSectionState('sec-notifications') },
-    security: { controls: readSectionState('sec-security') },
-    backup: { controls: readSectionState('sec-backup') },
-    staff,
+    notifications: {
+      controls: notificationsControls,
+      values: readSectionKeyValues('sec-notifications'),
+    },
+    security: {
+      controls: securityControls,
+      values: readSectionKeyValues('sec-security'),
+    },
+    backup: {
+      controls: backupControls,
+      values: readSectionKeyValues('sec-backup'),
+    },
   };
 }
 
@@ -1076,7 +1130,11 @@ function applyThemeState(themeColor, themeLabel) {
   const options = Array.from(document.querySelectorAll('.theme-opt'));
   options.forEach((node) => node.classList.remove('selected'));
 
-  const exact = options.find((node) => String(node.style.background || '').toLowerCase() === String(themeColor).toLowerCase());
+  const normalizedTheme = normalizeColorToHex(themeColor);
+  const exact = options.find((node) => {
+    const nodeColor = node.getAttribute('data-theme-color') || node.style.background || '';
+    return normalizeColorToHex(nodeColor) === normalizedTheme;
+  });
   if (exact) {
     exact.classList.add('selected');
   } else if (options[0]) {
@@ -1087,6 +1145,59 @@ function applyThemeState(themeColor, themeLabel) {
     const labelNode = document.getElementById('theme-label');
     if (labelNode) labelNode.textContent = themeLabel;
   }
+
+  applyThemeColor(normalizedTheme || '#0f1f3d');
+}
+
+function normalizeColorToHex(color) {
+  const raw = String(color || '').trim().toLowerCase();
+  if (!raw) return '#0f1f3d';
+  if (raw.startsWith('#')) {
+    if (raw.length === 4) {
+      return `#${raw[1]}${raw[1]}${raw[2]}${raw[2]}${raw[3]}${raw[3]}`;
+    }
+    return raw;
+  }
+
+  const match = raw.match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (!match) return '#0f1f3d';
+
+  const hex = [match[1], match[2], match[3]]
+    .map((value) => Number.parseInt(value, 10).toString(16).padStart(2, '0'))
+    .join('');
+  return `#${hex}`;
+}
+
+function blendWithWhite(hexColor, ratio) {
+  const hex = normalizeColorToHex(hexColor).replace('#', '');
+  const r = Number.parseInt(hex.slice(0, 2), 16);
+  const g = Number.parseInt(hex.slice(2, 4), 16);
+  const b = Number.parseInt(hex.slice(4, 6), 16);
+  const clampRatio = Math.max(0, Math.min(1, ratio));
+
+  const mix = (channel) => Math.round(channel + (255 - channel) * clampRatio);
+  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
+}
+
+function darkenHex(hexColor, ratio) {
+  const hex = normalizeColorToHex(hexColor).replace('#', '');
+  const r = Number.parseInt(hex.slice(0, 2), 16);
+  const g = Number.parseInt(hex.slice(2, 4), 16);
+  const b = Number.parseInt(hex.slice(4, 6), 16);
+  const clampRatio = Math.max(0, Math.min(1, ratio));
+
+  const darken = (channel) => Math.round(channel * (1 - clampRatio));
+  return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
+}
+
+function applyThemeColor(color) {
+  const root = document.documentElement;
+  const base = normalizeColorToHex(color);
+  root.style.setProperty('--navy', base);
+  root.style.setProperty('--navy-light', darkenHex(base, 0.2));
+  root.style.setProperty('--accent', darkenHex(base, 0.1));
+  root.style.setProperty('--navy-faint', blendWithWhite(base, 0.9));
+  root.style.setProperty('--navy-muted', blendWithWhite(base, 0.78));
 }
 
 function applyAvatarPreview(nodeId, dataUrl) {
@@ -1261,6 +1372,10 @@ function applySettingsPayload(payload) {
   applySectionState('sec-security', payload?.security?.controls || []);
   applySectionState('sec-backup', payload?.backup?.controls || []);
 
+  applySectionKeyValues('sec-notifications', payload?.notifications?.values || payload?.notifications || {});
+  applySectionKeyValues('sec-security', payload?.security?.values || payload?.security || {});
+  applySectionKeyValues('sec-backup', payload?.backup?.values || payload?.backup || {});
+
   applyThemeState(payload?.appearance?.theme_color, payload?.appearance?.theme_label);
 
   storeLogoDataUrl = String(payload?.store_profile?.logo_data_url || '');
@@ -1268,10 +1383,6 @@ function applySettingsPayload(payload) {
   applyAvatarPreview('store-logo-preview', storeLogoDataUrl ? `${storeLogoDataUrl}?v=${Date.now()}` : '');
   applyAvatarPreview('account-photo-preview', accountPhotoDataUrl ? `${accountPhotoDataUrl}?v=${Date.now()}` : '');
 
-  if (Array.isArray(payload?.staff) && payload.staff.length) {
-    staff = payload.staff;
-    renderStaff();
-  }
 }
 
 async function loadSettingsFromBackend() {
@@ -1328,28 +1439,91 @@ function showSection(id, el) {
 
 // ─── THEME ───
 function selectTheme(el, color, name) {
-  document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('theme-label').textContent = name;
+  applyThemeState(color, name);
   markDirty();
-  showToast('Theme preview: ' + name + ' (save to apply)');
+  showToast('Theme updated to ' + name);
 }
 
 // ─── STAFF TABLE ───
+function normalizeListPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  return [];
+}
+
+function formatRoleFromApi(apiRole) {
+  const key = String(apiRole || '').toUpperCase();
+  return API_TO_ROLE[key] || 'Cashier';
+}
+
+function toApiRole(uiRole) {
+  return ROLE_TO_API[uiRole] || 'CASHIER';
+}
+
+function mapProfileToStaff(profile, index) {
+  const palette = STAFF_AVATAR_COLORS[index % STAFF_AVATAR_COLORS.length];
+  const user = profile?.user || {};
+  const first = String(user.first_name || '').trim();
+  const last = String(user.last_name || '').trim();
+  const username = String(user.username || '').trim();
+  const fallbackName = username || `Staff ${index + 1}`;
+  const fname = first || fallbackName.split(' ')[0] || 'Staff';
+  const lname = last || fallbackName.split(' ').slice(1).join(' ') || '';
+
+  return {
+    id: String(profile.id),
+    profileId: String(profile.id),
+    userId: user.id,
+    username,
+    fname,
+    lname,
+    email: String(user.email || ''),
+    role: formatRoleFromApi(profile.role),
+    pin: '----',
+    lastLogin: 'N/A',
+    status: user.is_active === false ? 'inactive' : 'active',
+    color: palette.bg,
+    textColor: palette.txt,
+  };
+}
+
+function updateStaffSummary() {
+  const summary = document.getElementById('staff-count-sub');
+  if (!summary) return;
+  const activeCount = staff.filter((entry) => entry.status === 'active').length;
+  summary.textContent = `${activeCount} active staff member${activeCount === 1 ? '' : 's'}`;
+}
+
+async function loadStaffProfiles() {
+  const payload = await apiRequest('/auth/profiles/');
+  const rows = normalizeListPayload(payload);
+  staff = rows.map((profile, index) => mapProfileToStaff(profile, index));
+  renderStaff();
+}
+
 function renderStaff() {
-  document.getElementById('staff-tbody').innerHTML = staff.map(s => `
+  const tableBody = document.getElementById('staff-tbody');
+  if (!tableBody) return;
+
+  if (!staff.length) {
+    tableBody.innerHTML = '<tr><td colspan="6" style="padding:0.95rem 1rem;color:var(--text-muted);">No staff profiles found.</td></tr>';
+    updateStaffSummary();
+    return;
+  }
+
+  const currentUsername = (localStorage.getItem(USER_NAME_KEY) || '').trim().toLowerCase();
+
+  tableBody.innerHTML = staff.map(s => `
     <tr>
       <td>
         <div class="staff-cell">
-          <div class="staff-avatar" style="background:${s.color};color:${s.textColor};">${s.fname[0]}${s.lname[0]}</div>
+          <div class="staff-avatar" style="background:${s.color};color:${s.textColor};">${(s.fname[0] || 'S')}${(s.lname[0] || '')}</div>
           <div><div style="font-weight:500;">${s.fname} ${s.lname}</div><div style="font-size:10px;color:var(--text-muted);">${s.email}</div></div>
         </div>
       </td>
       <td>
-        <select class="role-select-inline" onchange="changeRole('${s.id}',this.value)">
-          <option ${s.role==='Cashier'?'selected':''}>Cashier</option>
-          <option ${s.role==='Manager'?'selected':''}>Manager</option>
-          <option ${s.role==='Admin'?'selected':''}>Admin</option>
+        <select class="role-select-inline" onchange="changeRole('${s.profileId}',this.value)">
+          ${ROLE_OPTIONS.map((roleName) => `<option ${s.role===roleName?'selected':''}>${roleName}</option>`).join('')}
         </select>
       </td>
       <td style="font-family:'Geist Mono',monospace;color:var(--text-muted);">${s.pin}</td>
@@ -1357,48 +1531,93 @@ function renderStaff() {
       <td><span class="badge ${s.status==='active'?'badge-green':'badge-gray'}">${s.status==='active'?'Active':'Inactive'}</span></td>
       <td style="text-align:right;">
         <div style="display:flex;gap:6px;justify-content:flex-end;">
-          <button class="icon-btn" onclick="toggleStatus('${s.id}')" title="Toggle status" style="color:var(--text-muted);">⊙</button>
-          ${s.id!=='S001'?`<button class="icon-btn" onclick="removeStaff('${s.id}')" title="Remove">🗑</button>`:'<div style="width:28px;"></div>'}
+          <button class="icon-btn" onclick="toggleStatus('${s.profileId}')" title="Toggle status" style="color:var(--text-muted);">⊙</button>
+          ${s.username.toLowerCase() !== currentUsername ? `<button class="icon-btn" onclick="removeStaff('${s.profileId}')" title="Remove">🗑</button>` : '<div style="width:28px;"></div>'}
         </div>
       </td>
     </tr>`).join('');
+
+  updateStaffSummary();
 }
 
-function changeRole(id, role) { const s = staff.find(x=>x.id===id); if(s){s.role=role; showToast(s.fname+' role updated to '+role,'success');} }
-function toggleStatus(id) {
-  const s = staff.find(x=>x.id===id);
-  if (!s || s.id==='S001') return;
-  s.status = s.status==='active'?'inactive':'active';
-  renderStaff();
-  showToast(s.fname+' '+s.lname+' is now '+s.status);
+async function changeRole(profileId, role) {
+  const person = staff.find((entry) => entry.profileId === String(profileId));
+  if (!person) return;
+
+  try {
+    await apiRequest(`/auth/profiles/${profileId}/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: toApiRole(role) }),
+    });
+    person.role = role;
+    renderStaff();
+    showToast(`${person.fname} role updated to ${role}`, 'success');
+  } catch (error) {
+    showToast(error.message || 'Unable to update role', 'error');
+  }
 }
-function removeStaff(id) {
-  const s = staff.find(x=>x.id===id);
-  if (!s) return;
-  if (!confirm('Remove '+s.fname+' '+s.lname+' from the system?')) return;
-  staff = staff.filter(x=>x.id!==id);
-  renderStaff();
-  showToast(s.fname+' removed','error');
+
+function toggleStatus(profileId) {
+  const person = staff.find((entry) => entry.profileId === String(profileId));
+  if (!person) return;
+  showToast('Status toggle is not available from this endpoint yet.', 'warn');
+}
+
+async function removeStaff(profileId) {
+  const person = staff.find((entry) => entry.profileId === String(profileId));
+  if (!person) return;
+  if (!confirm(`Remove ${person.fname} ${person.lname} from the system?`)) return;
+
+  try {
+    await apiRequest(`/auth/profiles/${profileId}/`, { method: 'DELETE' });
+    staff = staff.filter((entry) => entry.profileId !== String(profileId));
+    renderStaff();
+    showToast(`${person.fname} removed`, 'success');
+  } catch (error) {
+    showToast(error.message || 'Unable to remove staff member', 'error');
+  }
 }
 
 function openAddStaff() { document.getElementById('modal-staff').classList.add('open'); }
-function addStaff() {
+async function addStaff() {
   const fname = document.getElementById('sf-fname').value.trim();
   const lname = document.getElementById('sf-lname').value.trim();
-  if (!fname || !lname) { showToast('Name is required','error'); return; }
-  const colors = [{bg:'#dbeafe',txt:'#1e40af'},{bg:'#d1fae5',txt:'#065f46'},{bg:'#fef3c7',txt:'#92400e'},{bg:'#ede9fe',txt:'#4c1d95'}];
-  const c = colors[staff.length % colors.length];
-  staff.push({
-    id:'S'+String(staff.length+1).padStart(3,'0'),
-    fname, lname,
-    email: document.getElementById('sf-email').value,
-    role: document.getElementById('sf-role').value,
-    pin: '****', lastLogin:'Never', status:'active',
-    color:c.bg, textColor:c.txt
-  });
-  renderStaff();
-  closeModal('modal-staff');
-  showToast(fname+' added to staff ✓','success');
+  const email = document.getElementById('sf-email').value.trim();
+  const role = document.getElementById('sf-role').value;
+  const pin = document.getElementById('sf-pin').value.trim();
+
+  if (!fname || !lname) {
+    showToast('First and last name are required', 'error');
+    return;
+  }
+
+  const baseUsername = `${fname}.${lname}`.toLowerCase().replace(/[^a-z0-9.]/g, '');
+  const safeUsername = (baseUsername || `staff${Date.now()}`).slice(0, 24);
+  const generatedPassword = `Pos@${pin || Math.floor(1000 + Math.random() * 9000)}Aa`;
+
+  try {
+    await apiRequest('/auth/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: safeUsername,
+        email,
+        first_name: fname,
+        last_name: lname,
+        role: toApiRole(role),
+        password: generatedPassword,
+        confirm_password: generatedPassword,
+      }),
+    });
+
+    await loadStaffProfiles();
+    closeModal('modal-staff');
+    showToast(`${fname} added to staff`, 'success');
+    markDirty();
+  } catch (error) {
+    showToast(error.message || 'Unable to add staff member', 'error');
+  }
 }
 
 // ─── PERMISSIONS TABLE ───
@@ -1442,14 +1661,27 @@ function showToast(msg, type='') {
   setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
+async function runWithPageLoader(task, label) {
+  if (window.POS_UI && typeof window.POS_UI.withGlobalLoader === 'function') {
+    return window.POS_UI.withGlobalLoader(task, label);
+  }
+  return task();
+}
+
 // Init
 if (initializeAccessControl()) {
-  renderStaff();
   renderPerms();
   renderAuditLog();
-  loadSettingsFromBackend().catch((error) => {
-    showToast(error.message || 'Unable to load saved settings', 'warn');
-  });
+  runWithPageLoader(async () => {
+    await Promise.all([
+      loadStaffProfiles().catch((error) => {
+        showToast(error.message || 'Unable to load staff profiles', 'warn');
+      }),
+      loadSettingsFromBackend().catch((error) => {
+        showToast(error.message || 'Unable to load saved settings', 'warn');
+      }),
+    ]);
+  }, 'Loading settings...');
 }
 
 (function () {

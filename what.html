@@ -14,8 +14,12 @@
     <section class="hero-card">
       <header class="topbar">
         <a href="#" class="brand" aria-label="Point of Sale System">
-          <img src="images/logo-image.png" alt="Point of Sale System logo">
-          <span>Point of Sale System</span>
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-mark-icon" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+              <polygon points="7,3.8 17,3.8 22,12 17,20.2 7,20.2 2,12" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></polygon>
+            </svg>
+          </span>
+          <span class="brand-text">SwiftPOS</span>
         </a>
 
         <button class="theme-pills" id="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false">
@@ -93,7 +97,47 @@
     applyTheme(next);
   }
 
+  function animateOnboardingFromButton() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const heroCard = document.querySelector(".hero-card");
+    const sourceButton = document.querySelector(".btn-register") || document.querySelector(".btn-login");
+    if (!heroCard || !sourceButton) {
+      return;
+    }
+
+    const cardRect = heroCard.getBoundingClientRect();
+    const sourceRect = sourceButton.getBoundingClientRect();
+
+    const cardCenterX = cardRect.left + cardRect.width / 2;
+    const cardCenterY = cardRect.top + cardRect.height / 2;
+    const sourceCenterX = sourceRect.left + sourceRect.width / 2;
+    const sourceCenterY = sourceRect.top + sourceRect.height / 2;
+
+    const deltaX = 0;
+    const deltaY = Math.max(72, Math.abs(cardCenterY - sourceCenterY) * 0.45);
+
+    heroCard.style.setProperty("--entry-x", `${deltaX}px`);
+    heroCard.style.setProperty("--entry-y", `${deltaY}px`);
+
+    const cleanup = () => {
+      body.classList.remove("is-animating-in");
+      heroCard.style.removeProperty("--entry-x");
+      heroCard.style.removeProperty("--entry-y");
+    };
+
+    body.classList.remove("is-animating-in");
+    window.requestAnimationFrame(() => {
+      body.classList.add("is-animating-in");
+      heroCard.addEventListener("animationend", cleanup, { once: true });
+      window.setTimeout(cleanup, 1000);
+    });
+  }
+
   applyTheme(resolveInitialTheme());
+  animateOnboardingFromButton();
   toggle.addEventListener("click", toggleTheme);
 </script>
 </html>

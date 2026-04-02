@@ -28,6 +28,15 @@ function setStatus(message, type = "") {
   }
 }
 
+function setLoginLoading(isLoading) {
+  loginButton.disabled = isLoading;
+  if (isLoading) {
+    loginButton.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span><span>Logging in...</span>';
+    return;
+  }
+  loginButton.textContent = defaultLoginButtonText;
+}
+
 function removeFieldTooltip(input) {
   const tooltipId = input.getAttribute("data-error-id");
   if (!tooltipId) {
@@ -179,8 +188,7 @@ form.addEventListener("submit", async (event) => {
   const password = passwordInput.value;
   const selectedRole = (document.querySelector(".role-tab.active")?.textContent || "Admin").trim().toUpperCase();
 
-  loginButton.disabled = true;
-  loginButton.textContent = "Logging in...";
+  setLoginLoading(true);
   setStatus("");
 
   try {
@@ -205,8 +213,7 @@ form.addEventListener("submit", async (event) => {
       setStatus(error.message, "error");
     }
   } finally {
-    loginButton.disabled = false;
-    loginButton.textContent = defaultLoginButtonText;
+    setLoginLoading(false);
   }
 });
 

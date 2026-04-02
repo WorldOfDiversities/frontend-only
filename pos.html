@@ -704,7 +704,10 @@ function initNavigation() {
   document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
     node.addEventListener('click', () => {
       const route = node.getAttribute('data-route');
-      if (route) window.location.href = route;
+      if (route) {
+        window.POS_UI?.showGlobalLoader?.('Opening page...');
+        window.location.href = route;
+      }
     });
     node.style.cursor = 'pointer';
   });
@@ -1328,6 +1331,13 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2600);
 }
 
+async function runWithPageLoader(task, label) {
+  if (window.POS_UI && typeof window.POS_UI.withGlobalLoader === 'function') {
+    return window.POS_UI.withGlobalLoader(task, label);
+  }
+  return task();
+}
+
 // ===== BARCODE SCANNER =====
 let scannedProduct = null;
 
@@ -1446,7 +1456,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initUserInfo();
   initNavigation();
   console.log('[POS] Starting data load...');
-  await initData();
+  await runWithPageLoader(async () => {
+    await initData();
+  }, 'Loading POS data...');
   logDiagnostics();
   renderProducts();
   console.log('[POS] Page initialization complete');

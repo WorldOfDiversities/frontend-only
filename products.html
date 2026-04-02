@@ -1099,6 +1099,13 @@ function showToast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+async function runWithPageLoader(task, label) {
+  if (window.POS_UI && typeof window.POS_UI.withGlobalLoader === 'function') {
+    return window.POS_UI.withGlobalLoader(task, label);
+  }
+  return task();
+}
+
 async function refreshAll() {
   const [catOk, supplierOk, productOk] = await Promise.all([loadCategories(), loadSuppliers(), loadProducts()]);
   if (!(catOk && supplierOk && productOk)) return;
@@ -1109,7 +1116,10 @@ function wireNavigation() {
   document.querySelectorAll('.nav-item[data-route]').forEach((item) => {
     item.addEventListener('click', () => {
       const route = item.getAttribute('data-route');
-      if (route) window.location.href = route;
+      if (route) {
+        window.POS_UI?.showGlobalLoader?.('Opening page...');
+        window.location.href = route;
+      }
     });
   });
 
@@ -1144,7 +1154,9 @@ async function initPage() {
   setProfile();
   wireNavigation();
   buildEmojiPicker('📦');
-  await refreshAll();
+  await runWithPageLoader(async () => {
+    await refreshAll();
+  }, 'Loading products...');
 
   // Keep inventory numbers updated after sales happen in POS.
   setInterval(async () => {

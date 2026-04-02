@@ -677,7 +677,10 @@ function wireNavigation() {
   document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
     node.addEventListener('click', () => {
       const route = node.getAttribute('data-route');
-      if (route) window.location.href = route;
+      if (route) {
+        window.POS_UI?.showGlobalLoader?.('Opening page...');
+        window.location.href = route;
+      }
     });
   });
 
@@ -1051,6 +1054,13 @@ function showToast(msg, type = '') {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+async function runWithPageLoader(task, label) {
+  if (window.POS_UI && typeof window.POS_UI.withGlobalLoader === 'function') {
+    return window.POS_UI.withGlobalLoader(task, label);
+  }
+  return task();
+}
+
 document.querySelectorAll('.modal-overlay').forEach((o) => {
   o.addEventListener('click', (e) => {
     if (e.target === o) closeModal(o.id);
@@ -1073,7 +1083,9 @@ async function initPage() {
 
   setProfile();
   wireNavigation();
-  await refreshAll();
+  await runWithPageLoader(async () => {
+    await refreshAll();
+  }, 'Loading inventory...');
 
   setInterval(async () => {
     await refreshAll();

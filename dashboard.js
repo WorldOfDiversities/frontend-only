@@ -14,6 +14,7 @@ const recentTransactionsBodyNode = document.getElementById("recent-transactions-
 const stockAlertsListNode = document.getElementById("stock-alerts-list");
 const topCashiersListNode = document.getElementById("top-cashiers-list");
 const inventoryNavBadgeNode = document.getElementById("inventory-nav-badge");
+const pageLoaderNode = document.getElementById("page-loader");
 
 let cachedSales = [];
 let cachedPayments = [];
@@ -95,6 +96,19 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function setPageLoading(isLoading, label = "Loading dashboard data...") {
+  if (!pageLoaderNode) {
+    return;
+  }
+
+  const labelNode = pageLoaderNode.querySelector("p");
+  if (labelNode && label) {
+    labelNode.textContent = label;
+  }
+
+  pageLoaderNode.classList.toggle("is-hidden", !isLoading);
 }
 
 function applyRoleAccess(role) {
@@ -391,8 +405,11 @@ function setProfile(role) {
 }
 
 async function checkAuthAndLoad() {
+  setPageLoading(true, "Loading dashboard data...");
+
   const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
   if (!accessToken) {
+    setPageLoading(false);
     redirectToLogin();
     return;
   }
@@ -412,6 +429,8 @@ async function checkAuthAndLoad() {
     await loadDashboardData(role);
   } catch (error) {
     showToast(error.message || "Could not load dashboard data.");
+  } finally {
+    setPageLoading(false);
   }
 }
 

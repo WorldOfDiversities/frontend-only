@@ -139,6 +139,13 @@ function showToast(msg, type=''){
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+async function runWithPageLoader(task, label){
+  if (window.POS_UI && typeof window.POS_UI.withGlobalLoader === 'function'){
+    return window.POS_UI.withGlobalLoader(task, label);
+  }
+  return task();
+}
+
 async function apiGet(path){
   const token = localStorage.getItem(ACCESS_TOKEN_KEY);
   const response = await fetch(`${API_BASE_URL}${path}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -156,7 +163,10 @@ function wireNavigation(){
   document.querySelectorAll('.nav-item[data-route]').forEach((node) => {
     node.addEventListener('click', () => {
       const route = node.getAttribute('data-route');
-      if (route) window.location.href = route;
+      if (route) {
+        window.POS_UI?.showGlobalLoader?.('Opening page...');
+        window.location.href = route;
+      }
     });
   });
 
@@ -239,7 +249,9 @@ function setPeriod(el, period){
   document.querySelectorAll('.range-tab').forEach((t) => t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('report-period-label').textContent = `${periodLabels[period]} - Live overview`;
-  loadAndRender().catch((error) => showToast(error.message || 'Failed to refresh reports', 'error'));
+  runWithPageLoader(async () => {
+    await loadAndRender();
+  }, 'Refreshing reports...').catch((error) => showToast(error.message || 'Failed to refresh reports', 'error'));
 }
 
 function setReportType(el, type){
@@ -696,7 +708,9 @@ async function initPage(){
   wireNavigation();
 
   try {
-    await loadAndRender();
+    await runWithPageLoader(async () => {
+      await loadAndRender();
+    }, 'Loading reports...');
   } catch (error) {
     console.error(error);
     showToast(error.message || 'Failed to load reports', 'error');

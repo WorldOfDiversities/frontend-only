@@ -408,6 +408,10 @@ textarea {
     font-family: "Geist", sans-serif;
     font-weight: 700;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .login-btn:hover {
@@ -417,6 +421,21 @@ textarea {
 .login-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.btn-spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+    animation: btnSpin 0.7s linear infinite;
+}
+
+@keyframes btnSpin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .status-text {
