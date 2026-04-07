@@ -216,6 +216,8 @@ h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
 .btn-outline:hover{border-color:var(--navy);color:var(--navy);}
 .btn-navy-sm{flex:1;padding:0.7rem;border:none;border-radius:var(--radius);background:var(--navy);color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:background 0.15s;}
 .btn-navy-sm:hover{background:var(--navy-light);}
+.modal-link-btn{border:none;background:none;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;padding:0.3rem 0.2rem;text-decoration:underline;text-underline-offset:2px;align-self:center;}
+.modal-link-btn:hover{color:var(--navy-light);}
 
 /* success modal */
 .success-modal{text-align:center;padding:2.5rem 2rem;}
@@ -486,7 +488,7 @@ h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
       <h3>Confirm Sale</h3>
       <p>Review the receipt before processing payment</p>
     </div>
-    <div class="receipt-body">
+    <div id="receipt-printable" class="receipt-body">
       <div class="receipt-store">
         <div class="receipt-store-name">SwiftPOS Store</div>
         <div class="receipt-meta">
@@ -507,6 +509,7 @@ h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
     </div>
     <div class="receipt-footer">Thank you for shopping with us!</div>
     <div class="modal-actions">
+      <button class="modal-link-btn" type="button" onclick="printCheckoutReceipt()">Print Receipt</button>
       <button class="btn-outline" onclick="closeModal('modal-receipt')">Cancel</button>
       <button class="btn-navy-sm" onclick="confirmSale()">Confirm &amp; Complete →</button>
     </div>
@@ -1356,6 +1359,51 @@ function newSale() {
   renderCart();
   closeModal('modal-success');
   showToast('Ready for next sale · TXN-' + String(txnNum).padStart(5, '0'));
+}
+
+function printCheckoutReceipt() {
+  const printable = document.getElementById('receipt-printable');
+  if (!printable) {
+    showToast('Receipt preview is not available.');
+    return;
+  }
+
+  const printWindow = window.open('', '_blank', 'width=420,height=760');
+  if (!printWindow) {
+    showToast('Unable to open print preview. Allow popups and try again.');
+    return;
+  }
+
+  const footerText = document.querySelector('#modal-receipt .receipt-footer')?.textContent || '';
+  const printableHtml = printable.innerHTML;
+
+  printWindow.document.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Receipt</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; color: #111827; }
+          .receipt-store { text-align: center; padding-bottom: 10px; border-bottom: 1px dashed #d1d5db; margin-bottom: 10px; }
+          .receipt-store-name { font-size: 22px; margin-bottom: 6px; }
+          .receipt-meta { font-size: 12px; line-height: 1.7; color: #4b5563; }
+          .receipt-line { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; border-bottom: 1px solid #f3f4f6; }
+          .receipt-totals { border-top: 1px dashed #d1d5db; padding-top: 10px; margin-top: 8px; }
+          .rt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+          .rt-row.grand { font-size: 16px; font-weight: 700; border-top: 1px solid #d1d5db; margin-top: 8px; padding-top: 8px; }
+          .print-footer { text-align: center; margin-top: 12px; font-size: 12px; color: #6b7280; }
+        </style>
+      </head>
+      <body>
+        ${printableHtml}
+        <div class="print-footer">${footerText}</div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
 }
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
