@@ -573,7 +573,7 @@ h1,h2,h3{font-family:'Instrument Serif',serif;font-weight:400;line-height:1.2;}
     </div>
     <div class="receipt-body" style="padding: 1.5rem;">
       <p style="margin-bottom: 1rem; color: var(--text-muted); line-height: 1.6;">
-        A Paystack payment page has opened in a new tab. Please complete the MoMo payment there.
+        A Paystack payment page has opened in a new tab. Please complete the payment there.
       </p>
       <p style="margin-bottom: 1.5rem; font-weight: 500; color: var(--text);">
         Click <strong>OK</strong> once you've completed payment successfully.
@@ -1012,7 +1012,11 @@ function toBackendPaymentMethod(method) {
 }
 
 function shouldUseGateway(method) {
-  return method === 'MoMo';
+  return method === 'MoMo' || method === 'Card';
+}
+
+function paymentMethodLabel(method) {
+  return method === 'Card' ? 'Card' : 'MoMo';
 }
 
 function getCashierFallbackEmail() {
@@ -1051,9 +1055,15 @@ function getPaymentContactPhone() {
   return '';
 }
 
-async function initializeMoMoPayment(amount) {
+async function initializeElectronicPayment(amount, method) {
+  const backendMethod = toBackendPaymentMethod(method);
+  if (!backendMethod) {
+    throw new Error('Unsupported gateway payment method.');
+  }
+
   const payload = {
     amount: Number(amount.toFixed(2)),
+    payment_method: backendMethod,
     email: getPaymentContactEmail(),
     phone_number: getPaymentContactPhone(),
     currency: 'GHS',
@@ -1061,7 +1071,7 @@ async function initializeMoMoPayment(amount) {
   return apiCall('POST', '/payments/paystack/initialize/', payload);
 }
 
-async function verifyMoMoPayment(reference) {
+async function verifyElectronicPayment(reference) {
   return apiCall('POST', '/payments/paystack/verify/', { reference });
 }
 
@@ -1074,10 +1084,11 @@ function isTerminalFailedGatewayStatus(status) {
   return ['failed', 'abandoned', 'reversed', 'cancelled', 'expired'].includes(value);
 }
 
-async function verifyMoMoPaymentWithRetry(reference, maxAttempts = 30, delayMs = 3000) {
+async function verifyElectronicPaymentWithRetry(reference, method, maxAttempts = 30, delayMs = 3000) {
   let lastResult = null;
+  const label = paymentMethodLabel(method);
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    lastResult = await verifyMoMoPayment(reference);
+    lastResult = await verifyElectronicPayment(reference);
     if (lastResult && lastResult.verified) {
       return lastResult;
     }
@@ -1087,7 +1098,7 @@ async function verifyMoMoPaymentWithRetry(reference, maxAttempts = 30, delayMs =
     }
 
     if (attempt < maxAttempts) {
-      showToast(`Waiting for MoMo confirmation... (${attempt}/${maxAttempts})`);
+      showToast(`Waiting for ${label} confirmation... (${attempt}/${maxAttempts})`);
       await wait(delayMs);
     }
   }
@@ -1236,37 +1247,38 @@ async function confirmSale() {
   let paymentReference = '';
   let checkoutNotes = '';
   if (shouldUseGateway(selectedPayment)) {
-    showToast('Initializing MoMo payment with Paystack...');
+    const paymentLabel = paymentMethodLabel(selectedPayment);
+    showToast(`Initializing ${paymentLabel} payment with Paystack...`);
 
-    const initResult = await initializeMoMoPayment(total);
+    const initResult = await initializeElectronicPayment(total, selectedPayment);
     if (!initResult || !initResult.reference || !initResult.authorization_url) {
       showToast('Failed to initialize Paystack payment. Please try again.');
       return;
     }
 
     paymentReference = initResult.reference;
-    showToast('Opening Paystack payment page... Complete payment to auto-record sale.');
+    showToast(`Opening Paystack payment page... Complete ${paymentLabel} payment to auto-record sale.`);
     window.open(initResult.authorization_url, '_blank', 'noopener,noreferrer');
 
     // Start automatic verification polling
     showToast('Waiting for payment confirmation...');
-    const verifyResult = await verifyMoMoPaymentWithRetry(paymentReference);
+    const verifyResult = await verifyElectronicPaymentWithRetry(paymentReference, selectedPayment);
     
     if (!verifyResult || !verifyResult.verified) {
       // Payment not verified yet - ask user if they want to continue
       const statusText = verifyResult && verifyResult.gateway_status ? verifyResult.gateway_status : 'not successful';
       const continueInTest = await confirmVerificationStatusModalWithPromise(statusText);
       if (!continueInTest) {
-        showToast(`MoMo verification pending/failed (${statusText}). Please try checkout again in a few seconds.`);
+        showToast(`${paymentLabel} verification pending/failed (${statusText}). Please try checkout again in a few seconds.`);
         return;
       }
 
-      checkoutNotes = `Paystack MoMo pending/manual confirmation [status=${statusText}]`;
+      checkoutNotes = `Paystack ${paymentLabel} pending/manual confirmation [status=${statusText}]`;
       showToast('Recording sale with pending verification reference...');
     } else {
       // Payment verified - auto-record
       paymentReference = verifyResult.reference || paymentReference;
-      checkoutNotes = `Paystack MoMo verified [status=${verifyResult.gateway_status}]`;
+      checkoutNotes = `Paystack ${paymentLabel} verified [status=${verifyResult.gateway_status}]`;
       showToast('✓ Payment verified! Recording sale...');
     }
   }
