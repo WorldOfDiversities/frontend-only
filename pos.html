@@ -1065,9 +1065,11 @@ async function initializeElectronicPayment(amount, method) {
     amount: Number(amount.toFixed(2)),
     payment_method: backendMethod,
     email: getPaymentContactEmail(),
-    phone_number: getPaymentContactPhone(),
     currency: 'GHS',
   };
+  if (method === 'MoMo') {
+    payload.phone_number = getPaymentContactPhone();
+  }
   return apiCall('POST', '/payments/paystack/initialize/', payload);
 }
 
@@ -1253,6 +1255,18 @@ async function confirmSale() {
     const initResult = await initializeElectronicPayment(total, selectedPayment);
     if (!initResult || !initResult.reference || !initResult.authorization_url) {
       showToast('Failed to initialize Paystack payment. Please try again.');
+      return;
+    }
+
+    const expectedMethod = toBackendPaymentMethod(selectedPayment);
+    const initializedMethod = String(initResult.payment_method || '').toUpperCase();
+    const initializedChannel = String(initResult.channel || '').toLowerCase();
+    if (expectedMethod && initializedMethod && initializedMethod !== expectedMethod) {
+      showToast(`Payment setup mismatch: expected ${paymentLabel}, got ${initializedMethod}.`);
+      return;
+    }
+    if (selectedPayment === 'Card' && initializedChannel && initializedChannel !== 'card') {
+      showToast(`Payment setup mismatch: expected card channel, got ${initializedChannel}.`);
       return;
     }
 
